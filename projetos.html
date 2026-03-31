@@ -590,6 +590,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="storage.js"></script>
 <script>
 // ═══════════════════════════════════════
@@ -1478,7 +1479,11 @@ function toggleSidebar() {
 }
 
 // INIT
-render();
+sincronizarDaCloud().then(() => {
+  clientes = carregarDados(DB_KEYS.clientes, CLIENTES_PADRAO_PROJ);
+  projetos  = carregarDados(DB_KEYS.projetos, PROJETOS_PADRAO);
+  render();
+});
 </script>
 </body>
 </html>

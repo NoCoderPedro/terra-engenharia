@@ -375,6 +375,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="storage.js"></script>
 <script>
 // ═══════════════════════════════════════
@@ -712,8 +713,11 @@ function filtrar(tipo, el) {
 // ═══════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════
-garantirIds();
-render();
+sincronizarDaCloud().then(() => {
+  clientes = carregarDados(DB_KEYS.clientes, []);
+  garantirIds();
+  render();
+});
 </script>
 </body>
 </html>

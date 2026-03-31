@@ -359,6 +359,7 @@
 
 <div id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="storage.js"></script>
 <script>
 // ═══════════════════════════════════════
@@ -794,8 +795,11 @@ function confirmarExclusao() {
 // ═══════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════
-popularMeses();
-render();
+sincronizarDaCloud().then(() => {
+  lancamentos = carregarDados(DB_KEYS.lancamentos, LANCAMENTOS_PADRAO);
+  popularMeses();
+  render();
+});
 </script>
 </body>
 </html>
