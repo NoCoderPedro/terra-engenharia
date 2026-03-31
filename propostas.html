@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terra Engenharia — Propostas</title>
+  <style>
+    :root {
+      --teal:      #225D65;
+      --teal-dark: #1a464d;
+      --rust:      #AE5238;
+      --mustard:   #D39932;
+      --olive:     #5C633E;
+      --cream:     #E3D8C6;
+      --cream-dark:#d4c9b4;
+      --white:     #ffffff;
+      --text-dark: #2c2c2c;
+      --text-mid:  #555;
+      --text-light:#888;
+      --sidebar-w: 240px;
+      --radius:    12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--cream); color: var(--text-dark); display: flex; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--teal); display: flex; flex-direction: column; position: fixed; top:0; left:0; height:100vh; z-index:100; transition: transform .3s; }
+    .sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,.12); }
+    .sidebar-logo .brand { font-size:18px; font-weight:700; color:#fff; }
+    .sidebar-logo .sub { font-size:11px; color:rgba(255,255,255,.5); margin-top:3px; letter-spacing:1px; text-transform:uppercase; }
+    .nav { padding: 16px 0; flex:1; }
+    .nav-section { font-size:10px; color:rgba(255,255,255,.4); letter-spacing:1.5px; text-transform:uppercase; padding:16px 24px 6px; }
+    .nav-item { display:flex; align-items:center; gap:12px; padding:11px 24px; color:rgba(255,255,255,.75); font-size:14px; cursor:pointer; border-left:3px solid transparent; transition:all .2s; text-decoration:none; }
+    .nav-item:hover { background:rgba(255,255,255,.08); color:#fff; }
+    .nav-item.active { background:rgba(255,255,255,.13); color:#fff; border-left-color:var(--mustard); font-weight:600; }
+    .nav-item .icon { font-size:18px; width:22px; text-align:center; }
+    .nav-badge { margin-left:auto; background:var(--rust); color:#fff; font-size:10px; font-weight:700; border-radius:20px; padding:2px 7px; }
+    .sidebar-user { padding:16px 24px; border-top:1px solid rgba(255,255,255,.12); display:flex; align-items:center; gap:12px; }
+    .avatar { width:36px; height:36px; border-radius:50%; background:var(--mustard); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; }
+    .sidebar-user .info .name { font-size:13px; color:#fff; font-weight:600; }
+    .sidebar-user .info .role { font-size:11px; color:rgba(255,255,255,.5); }
+
+    /* MAIN */
+    .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; }
+    .topbar { background:var(--white); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--cream-dark); position:sticky; top:0; z-index:50; }
+    .topbar-title { font-size:20px; font-weight:700; color:var(--teal); }
+    .topbar-sub { font-size:13px; color:var(--text-light); }
+
+    /* BOTÕES */
+    .btn { padding:8px 18px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all .2s; display:inline-flex; align-items:center; gap:6px; }
+    .btn-primary { background:var(--teal); color:#fff; }
+    .btn-primary:hover { background:var(--teal-dark); }
+    .btn-outline { background:transparent; color:var(--teal); border:1.5px solid var(--teal); }
+    .btn-outline:hover { background:var(--teal); color:#fff; }
+    .btn-danger { background:rgba(174,82,56,.1); color:var(--rust); border:1.5px solid rgba(174,82,56,.3); }
+    .btn-danger:hover { background:var(--rust); color:#fff; }
+    .btn-mustard { background:rgba(211,153,50,.12); color:#8a6400; border:1.5px solid rgba(211,153,50,.4); }
+    .btn-mustard:hover { background:var(--mustard); color:#fff; }
+    .btn-olive { background:rgba(92,99,62,.12); color:var(--olive); border:1.5px solid rgba(92,99,62,.3); }
+    .btn-olive:hover { background:var(--olive); color:#fff; }
+    .btn-sm { padding:6px 14px; font-size:12px; }
+
+    .content { padding:28px 32px; flex:1; }
+
+    /* PIPELINE */
+    .pipeline { display:flex; gap:8px; margin-bottom:24px; }
+    .pipe-card { flex:1; background:var(--white); border-radius:10px; padding:14px 16px; border-top:3px solid var(--cream-dark); cursor:pointer; transition:all .2s; }
+    .pipe-card:hover { box-shadow:0 4px 12px rgba(0,0,0,.08); transform:translateY(-1px); }
+    .pipe-card.elaboracao { border-top-color:var(--mustard); }
+    .pipe-card.enviada     { border-top-color:var(--teal); }
+    .pipe-card.negociacao  { border-top-color:var(--rust); }
+    .pipe-card.aprovada    { border-top-color:var(--olive); }
+    .pipe-card.recusada    { border-top-color:#aaa; }
+    .pipe-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--text-light); margin-bottom:6px; }
+    .pipe-num   { font-size:26px; font-weight:800; color:var(--text-dark); line-height:1; }
+    .pipe-sub   { font-size:11px; color:var(--text-light); margin-top:3px; }
+
+    /* FILTROS */
+    .filtros { display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; align-items:center; }
+    .filtro-pill { padding:6px 16px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; border:1.5px solid var(--cream-dark); background:var(--white); color:var(--text-mid); transition:all .2s; }
+    .filtro-pill:hover { border-color:var(--teal); color:var(--teal); }
+    .filtro-pill.active { background:var(--teal); color:#fff; border-color:var(--teal); }
+    .search-box { margin-left:auto; display:flex; align-items:center; gap:8px; background:var(--white); border:1.5px solid var(--cream-dark); border-radius:8px; padding:6px 14px; }
+    .search-box input { border:none; outline:none; font-size:13px; color:var(--text-dark); background:transparent; width:200px; }
+
+    /* CARDS */
+    .propostas-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:16px; }
+    .prop-card { background:var(--white); border-radius:var(--radius); box-shadow:0 1px 4px rgba(0,0,0,.06); overflow:hidden; cursor:pointer; transition:box-shadow .2s, transform .15s; border-top:4px solid var(--teal); }
+    .prop-card:hover { box-shadow:0 6px 20px rgba(0,0,0,.1); transform:translateY(-2px); }
+    .prop-card.elaboracao { border-top-color:var(--mustard); }
+    .prop-card.enviada    { border-top-color:var(--teal); }
+    .prop-card.negociacao { border-top-color:var(--rust); }
+    .prop-card.aprovada   { border-top-color:var(--olive); }
+    .prop-card.recusada   { border-top-color:#aaa; opacity:.8; }
+
+    .card-top { padding:18px 20px 14px; }
+    .card-num  { font-size:11px; color:var(--text-light); font-weight:600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px; display:flex; align-items:center; justify-content:space-between; }
+    .card-nome { font-size:16px; font-weight:700; color:var(--text-dark); margin-bottom:4px; }
+    .card-tipo { font-size:12px; color:var(--text-mid); margin-bottom:8px; }
+    .card-valor { font-size:18px; font-weight:800; color:var(--teal); }
+    .card-meta  { display:flex; gap:12px; font-size:12px; color:var(--text-light); margin-top:6px; }
+
+    .card-footer { padding:10px 20px; border-top:1px solid var(--cream); display:flex; align-items:center; justify-content:space-between; }
+
+    /* BADGES */
+    .badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+    .badge-elaboracao { background:rgba(211,153,50,.15); color:#8a6400; }
+    .badge-enviada    { background:rgba(34,93,101,.12); color:var(--teal); }
+    .badge-negociacao { background:rgba(174,82,56,.12); color:var(--rust); }
+    .badge-aprovada   { background:rgba(92,99,62,.12); color:var(--olive); }
+    .badge-recusada   { background:rgba(100,100,100,.1); color:#666; }
+
+    /* VERSÃO TAG */
+    .versao-tag { font-size:11px; font-weight:700; background:var(--cream); color:var(--text-mid); padding:2px 8px; border-radius:6px; }
+
+    /* VALIDADE */
+    .validade-ok      { color:var(--olive); font-weight:600; }
+    .validade-vencida { color:var(--rust); font-weight:600; }
+
+    /* VAZIO */
+    .vazio { text-align:center; padding:60px 20px; color:var(--text-light); }
+    .vazio .icon { font-size:48px; margin-bottom:12px; }
+
+    /* ══════════════════════════════
+       MODAL BASE
+    ══════════════════════════════ */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:200; align-items:center; justify-content:center; padding:16px; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--white); border-radius:16px; width:100%; max-width:680px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+    .modal-sm { max-width:440px; }
+    .modal-header { padding:24px 28px 18px; border-bottom:1px solid var(--cream); display:flex; justify-content:space-between; align-items:flex-start; flex-shrink:0; background:var(--white); }
+    .modal-num  { font-size:12px; color:var(--text-light); font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+    .modal-nome { font-size:22px; font-weight:800; color:var(--teal); margin-bottom:4px; }
+    .modal-tipo { font-size:13px; color:var(--text-light); margin-bottom:16px; }
+    .modal-close { background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-light); line-height:1; padding:2px 6px; border-radius:6px; flex-shrink:0; }
+    .modal-close:hover { background:var(--cream); }
+    .modal-body { padding:24px 28px; overflow-y:auto; flex:1; }
+    .modal-actions { padding:18px 28px; border-top:1px solid var(--cream); display:flex; gap:8px; align-items:center; flex-shrink:0; flex-wrap:wrap; background:var(--white); }
+
+    /* SEÇÕES DO MODAL */
+    .section-title { font-size:13px; font-weight:700; color:var(--teal); text-transform:uppercase; letter-spacing:.5px; margin-bottom:12px; }
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+    .info-item { background:var(--cream); border-radius:8px; padding:12px 16px; }
+    .info-label { font-size:11px; color:var(--text-light); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; font-weight:600; }
+    .info-value { font-size:14px; font-weight:700; color:var(--text-dark); }
+
+    /* VERSÕES */
+    .versoes-lista { display:flex; flex-direction:column; gap:8px; margin-bottom:24px; }
+    .versao-item { background:var(--cream); border-radius:8px; overflow:hidden; }
+    .versao-item.atual { background:rgba(34,93,101,.07); border:1.5px solid rgba(34,93,101,.2); }
+    .versao-header { display:flex; align-items:center; gap:8px; padding:8px 14px; background:rgba(34,93,101,.09); border-bottom:1px solid var(--cream-dark); }
+    .versao-item.atual .versao-header { background:rgba(34,93,101,.13); }
+    .versao-tag-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--teal); }
+    .versao-data-label { font-size:10px; color:var(--text-light); margin-left:auto; }
+    .versao-atual-badge { font-size:10px; font-weight:700; background:var(--teal); color:#fff; padding:2px 8px; border-radius:10px; white-space:nowrap; }
+    .versao-body  { padding:10px 14px; }
+    .versao-valor { font-size:18px; font-weight:800; color:var(--teal); }
+    .versao-obs   { font-size:12px; color:var(--text-mid); margin-top:4px; line-height:1.5; }
+
+    /* HISTÓRICO — mesmo design de obs-item dos projetos */
+    .obs-lista { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+    .obs-item { background:var(--cream); border-radius:8px; overflow:hidden; }
+    .obs-etapa-header { display:flex; align-items:center; gap:8px; padding:8px 14px; background:rgba(34,93,101,.09); border-bottom:1px solid var(--cream-dark); }
+    .obs-etapa-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--teal); }
+    .obs-etapa-data { font-size:10px; color:var(--text-light); margin-left:auto; }
+    .obs-texto { padding:10px 14px; font-size:13px; color:var(--text-mid); line-height:1.6; }
+
+    /* MULTI-SELECT TIPO */
+    .multi-sel { position:relative; border:1.5px solid var(--cream-dark); border-radius:8px; background:#fff; min-height:42px; padding:6px 32px 6px 8px; cursor:pointer; display:flex; align-items:flex-start; flex-wrap:wrap; gap:4px; transition:border-color .2s; }
+    .multi-sel:focus-within, .multi-sel.aberto { border-color:var(--teal); }
+    .multi-sel-arrow { position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-light); font-size:11px; pointer-events:none; }
+    .multi-sel-placeholder { font-size:13px; color:var(--text-light); padding:3px 4px; line-height:1.4; }
+    .multi-sel-tag { background:rgba(34,93,101,.12); color:var(--teal); border-radius:5px; padding:3px 8px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:5px; }
+    .multi-sel-tag .rm { cursor:pointer; font-size:15px; line-height:1; opacity:.6; }
+    .multi-sel-tag .rm:hover { opacity:1; }
+    .multi-sel-drop { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:#fff; border:1.5px solid var(--teal); border-radius:8px; z-index:100; padding:6px; box-shadow:0 6px 20px rgba(0,0,0,.12); }
+    .multi-sel-drop.aberto { display:block; }
+    .multi-sel-opt { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:6px; cursor:pointer; font-size:13px; color:var(--text-dark); user-select:none; }
+    .multi-sel-opt:hover { background:var(--cream); }
+    .multi-sel-opt input { accent-color:var(--teal); width:15px; height:15px; cursor:pointer; flex-shrink:0; }
+
+    /* CONTATAR — zap hover */
+    #ct-zap-btn:hover { background:#25D366 !important; color:#fff !important; border-color:#25D366 !important; }
+
+    /* FORM */
+    .form-section { margin-bottom:20px; }
+    .form-section-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-light); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--cream); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .form-group { display:flex; flex-direction:column; gap:5px; }
+    .form-group.full { grid-column:1/-1; }
+    .form-group label { font-size:12px; font-weight:600; color:var(--text-dark); }
+    .form-group input, .form-group select, .form-group textarea {
+      border:1.5px solid var(--cream-dark); border-radius:8px; padding:9px 12px; font-size:13px;
+      color:var(--text-dark); outline:none; font-family:inherit; background:#fff; transition:border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--teal); }
+    .form-group textarea { resize:vertical; min-height:70px; }
+    .form-hint { font-size:11px; color:var(--text-light); margin-top:2px; }
+
+    /* TOAST */
+    #toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:#333; color:#fff; padding:10px 22px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; transition:all .3s; z-index:999; pointer-events:none; white-space:nowrap; }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    #toast.success { background:var(--olive); }
+    #toast.warning { background:var(--mustard); color:#fff; }
+    #toast.error   { background:var(--rust); }
+
+    /* RESPONSIVO */
+    @media(max-width:768px) {
+      .sidebar { transform:translateX(-100%); }
+      .sidebar.open { transform:translateX(0); }
+      .main { margin-left:0; }
+      .topbar { padding:14px 16px; }
+      .content { padding:16px; }
+      .propostas-grid { grid-template-columns:1fr; }
+      .pipeline { flex-wrap:wrap; }
+      .pipe-card { min-width:120px; }
+      .info-grid, .form-grid { grid-template-columns:1fr; }
+      .modal { max-height:95vh; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">🏗 Terra Engenharia</div>
+    <div class="sub">Sistema de Gestão</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item" onclick="location.href='dashboard.html'"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-section">Operação</div>
+    <div class="nav-item active"><span class="icon">📋</span> Propostas <span class="nav-badge" id="badge-count">0</span></div>
+    <div class="nav-item" onclick="location.href='projetos.html'"><span class="icon">📐</span> Projetos</div>
+    <div class="nav-item" onclick="location.href='financeiro.html'"><span class="icon">💰</span> Financeiro</div>
+    <div class="nav-section">Cadastros</div>
+    <div class="nav-item" onclick="location.href='clientes.html'"><span class="icon">👥</span> Clientes</div>
+    <div class="nav-item"><span class="icon">⚙️</span> Configurações</div>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar">P</div>
+    <div class="info">
+      <div class="name">Pedro</div>
+      <div class="role">Sócio</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Propostas</div>
+      <div class="topbar-sub" id="topbar-sub">—</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <a id="btn-canva" href="https://canva.link/ittgzutztn6dvyl" target="_blank" class="btn btn-outline" style="gap:8px;text-decoration:none;" title="Abrir modelo de proposta no Canva">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="12" r="12" fill="#7D2AE8"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="13" font-family="Arial" font-weight="bold">C</text></svg>
+        Modelo Canva
+      </a>
+      <button class="btn btn-primary" onclick="abrirFormNova()">+ Nova proposta</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Pipeline visual -->
+    <div class="pipeline" id="pipeline"></div>
+
+    <!-- Filtros -->
+    <div class="filtros">
+      <div class="filtro-pill active" onclick="filtrar(this,'abertas')">⚡ Abertas</div>
+      <div class="filtro-pill" onclick="filtrar(this,'elaboracao')">✏️ Em elaboração</div>
+      <div class="filtro-pill" onclick="filtrar(this,'enviada')">📤 Enviadas</div>
+      <div class="filtro-pill" onclick="filtrar(this,'negociacao')">🤝 Em negociação</div>
+      <div class="filtro-pill" onclick="filtrar(this,'aprovada')">✅ Aprovadas</div>
+      <div class="filtro-pill" onclick="filtrar(this,'recusada')">❌ Recusadas</div>
+      <div class="filtro-pill" onclick="filtrar(this,'todas')">Todas</div>
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Buscar proposta ou cliente..." oninput="buscar(this.value)"/>
+      </div>
+    </div>
+
+    <!-- Grid de cards -->
+    <div class="propostas-grid" id="propostas-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODAL DETALHE
+══════════════════════════════════ -->
+<div class="modal-overlay" id="modal-detalhe" onclick="fecharModalClick(event,'modal-detalhe')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-num" id="d-num"></div>
+        <div class="modal-nome" id="d-nome"></div>
+        <div class="modal-tipo" id="d-tipo"></div>
+      </div>
+      <button class="modal-close" onclick="fechar('modal-detalhe')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Info geral -->
+      <div>
+        <div class="section-title">Informações</div>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-label">Cliente</div><div class="info-value" id="d-cliente">—</div></div>
+          <div class="info-item"><div class="info-label">Responsável</div><div class="info-value" id="d-resp">—</div></div>
+          <div class="info-item" style="border-left:3px solid var(--teal);"><div class="info-label">Valor atual</div><div class="info-value" id="d-valor" style="font-size:16px;color:var(--teal);">—</div></div>
+          <div class="info-item"><div class="info-label">Status</div><div class="info-value" id="d-status">—</div></div>
+          <div class="info-item"><div class="info-label">Validade</div><div class="info-value" id="d-validade">—</div></div>
+          <div class="info-item"><div class="info-label">Criação</div><div class="info-value" id="d-criacao">—</div></div>
+          <div class="info-item"><div class="info-label">Envio</div><div class="info-value" id="d-envio">—</div></div>
+          <div class="info-item" style="grid-column:1/-1;"><div class="info-label">Tipo de serviço</div><div class="info-value" id="d-tipo-info" style="font-weight:600;color:var(--text-dark);">—</div></div>
+        </div>
+      </div>
+
+      <!-- Versões -->
+      <div>
+        <div class="section-title">Versões da proposta</div>
+        <div class="versoes-lista" id="d-versoes"></div>
+      </div>
+
+      <!-- PDFs da proposta -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="section-title" style="margin-bottom:0;">📄 Arquivos da proposta</div>
+          <label class="btn btn-outline btn-sm" style="cursor:pointer;margin:0;">
+            + Anexar PDF
+            <input type="file" accept=".pdf,.docx,.doc" id="input-pdf" style="display:none;" onchange="anexarPDF(this)"/>
+          </label>
+        </div>
+        <div id="d-pdfs"></div>
+      </div>
+
+      <!-- Histórico -->
+      <div style="margin-top:28px; padding-top:24px; border-top:1px solid var(--cream-dark);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="section-title" style="margin-bottom:0;">📋 Histórico</div>
+          <button class="btn btn-outline btn-sm" onclick="abrirModalObs()">+ Registrar</button>
+        </div>
+        <div class="obs-lista" id="d-historico"></div>
+      </div>
+    </div>
+    <div class="modal-actions" id="d-acoes"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODAL FORM (NOVA / EDITAR)
+══════════════════════════════════ -->
+<div class="modal-overlay" id="modal-form" onclick="fecharModalClick(event,'modal-form')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-nome" id="form-titulo">Nova proposta</div>
+      <button class="modal-close" onclick="fechar('modal-form')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">Dados da proposta</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Cliente *</label>
+            <div style="display:flex;gap:8px;">
+              <select id="f-cliente" style="flex:1;"></select>
+              <button type="button" class="btn btn-outline" onclick="abrirCadastroCliente()" title="Cadastrar novo cliente" style="flex-shrink:0;padding:10px 14px;font-size:13px;white-space:nowrap;">+ Cliente</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Tipo de serviço * <span style="font-size:10px;font-weight:400;color:var(--text-light);">(pode selecionar mais de um)</span></label>
+            <div class="multi-sel" id="tipo-select" onclick="toggleTipoDrop(event)">
+              <div id="tipo-tags" style="display:contents;"></div>
+              <span class="multi-sel-arrow">▾</span>
+              <div class="multi-sel-drop" id="tipo-dropdown">
+                <div class="multi-sel-opt" onclick="toggleTipoOpt(event,'PPCI — Proteção Contra Incêndio')"><input type="checkbox" value="PPCI — Proteção Contra Incêndio" onclick="event.stopPropagation();toggleTipoOpt(event,'PPCI — Proteção Contra Incêndio')"> PPCI — Proteção Contra Incêndio</div>
+                <div class="multi-sel-opt" onclick="toggleTipoOpt(event,'SPDA — Para-Raios')"><input type="checkbox" value="SPDA — Para-Raios" onclick="event.stopPropagation();toggleTipoOpt(event,'SPDA — Para-Raios')"> SPDA — Para-Raios</div>
+                <div class="multi-sel-opt" onclick="toggleTipoOpt(event,'Laudo técnico')"><input type="checkbox" value="Laudo técnico" onclick="event.stopPropagation();toggleTipoOpt(event,'Laudo técnico')"> Laudo técnico</div>
+                <div class="multi-sel-opt" onclick="toggleTipoOpt(event,'Consultoria')"><input type="checkbox" value="Consultoria" onclick="event.stopPropagation();toggleTipoOpt(event,'Consultoria')"> Consultoria</div>
+                <div class="multi-sel-opt" onclick="toggleTipoOpt(event,'Outro')"><input type="checkbox" value="Outro" onclick="event.stopPropagation();toggleTipoOpt(event,'Outro')"> Outro</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Responsável *</label>
+            <select id="f-resp">
+              <option>Pedro</option>
+              <option>João</option>
+              <option>Humberto</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Validade (dias) *</label>
+            <input type="number" id="f-validade" placeholder="ex: 15" min="1" max="120"/>
+            <span class="form-hint" id="f-validade-info">—</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title" id="form-valor-titulo">Valor — Versão 1</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Valor (R$) *</label>
+            <input type="number" id="f-valor" placeholder="0,00" min="0" step="0.01"/>
+          </div>
+          <div class="form-group">
+            <label>Observação desta versão</label>
+            <input type="text" id="f-versao-obs" placeholder="ex: Proposta inicial"/>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Observação inicial</div>
+        <div class="form-group full">
+          <textarea id="f-obs" placeholder="Como o cliente entrou em contato, detalhes do escopo, observações iniciais..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="btn-excluir" onclick="confirmarExclusao()" style="display:none;">🗑 Excluir</button>
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-form')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarProposta()" style="margin-left:auto;">Salvar proposta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODAL NOVA VERSÃO
+══════════════════════════════════ -->
+<div class="modal-overlay" id="modal-versao" onclick="fecharModalClick(event,'modal-versao')">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-nome">🤝 Nova versão</div>
+      <div class="modal-tipo" id="v-subtitulo"></div>
+      <button class="modal-close" onclick="fechar('modal-versao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Novo valor (R$) *</label>
+        <input type="number" id="v-valor" placeholder="0,00" min="0" step="0.01"
+          onkeydown="if(event.key==='Enter')document.getElementById('v-obs').focus()"/>
+      </div>
+      <div class="form-group" style="margin-top:14px;">
+        <label>Motivo da revisão *</label>
+        <textarea id="v-obs" placeholder="ex: Desconto solicitado pelo cliente, ajuste de escopo..." style="min-height:80px;"
+          onkeydown="if(event.key==='Enter'&&event.ctrlKey)salvarNovaVersao()"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-versao')">Cancelar</button>
+      <button class="btn btn-mustard btn-sm" onclick="salvarNovaVersao()" style="margin-left:auto;">Registrar versão</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODAL OBSERVAÇÃO
+══════════════════════════════════ -->
+<div class="modal-overlay" id="modal-obs" onclick="fecharModalClick(event,'modal-obs')">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-nome">📝 Registrar no histórico</div>
+      <button class="modal-close" onclick="fechar('modal-obs')">✕</button>
+    </div>
+    <div class="modal-body" style="gap:14px;">
+      <div class="form-group">
+        <label>Categoria</label>
+        <select id="obs-categoria">
+          <option value="📌 Geral">📌 Geral</option>
+          <option value="📞 Follow-up">📞 Follow-up</option>
+          <option value="🤝 Negociação">🤝 Negociação</option>
+          <option value="📤 Envio">📤 Envio</option>
+          <option value="👤 Cliente">👤 Cliente</option>
+          <option value="📋 Atualização">📋 Atualização</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Observação *</label>
+        <textarea id="obs-texto" placeholder="Descreva o que aconteceu, retorno do cliente, pendências..." style="min-height:100px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-obs')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarObs()" style="margin-left:auto;">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODAL CONTATAR CLIENTE
+══════════════════════════════════ -->
+<div class="modal-overlay" id="modal-contato" onclick="fecharModalClick(event,'modal-contato')">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-num">Contato direto</div>
+        <div class="modal-nome" style="font-size:18px;">📞 Contatar Cliente</div>
+      </div>
+      <button class="modal-close" onclick="fechar('modal-contato')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--cream);border-radius:10px;padding:16px 18px;margin-bottom:20px;">
+        <div style="font-size:11px;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Cliente</div>
+        <div style="font-size:16px;font-weight:700;color:var(--teal);" id="ct-nome"></div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:4px;" id="ct-resp"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn btn-outline" id="ct-email-btn" style="justify-content:flex-start;gap:12px;padding:14px 18px;font-size:14px;text-align:left;width:100%;">
+          <span style="font-size:20px;">📧</span>
+          <div>
+            <div style="font-weight:700;">Enviar e-mail</div>
+            <div style="font-size:12px;color:var(--text-light);font-weight:400;" id="ct-email-txt"></div>
+          </div>
+        </button>
+        <button class="btn btn-outline" id="ct-zap-btn" style="justify-content:flex-start;gap:12px;padding:14px 18px;font-size:14px;text-align:left;width:100%;border-color:#25D366;color:#25D366;">
+          <span style="font-size:20px;">💬</span>
+          <div>
+            <div style="font-weight:700;">Abrir no WhatsApp</div>
+            <div style="font-size:12px;font-weight:400;opacity:.75;" id="ct-tel-txt"></div>
+          </div>
+        </button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-contato')" style="margin-left:auto;">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODAL CONFIRMAÇÃO
+══════════════════════════════════ -->
+<div class="modal-overlay" id="modal-confirm" onclick="fecharModalClick(event,'modal-confirm')">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-nome" id="c-titulo" style="font-size:18px;"></div>
+      <button class="modal-close" onclick="fechar('modal-confirm')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="c-texto" style="font-size:14px;color:var(--text-mid);line-height:1.6;"></p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-confirm')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" id="c-btn-ok" style="margin-left:auto;">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODAL CADASTRO CLIENTE
+══════════════════════════════════ -->
+<div class="modal-overlay" id="modal-cliente" onclick="fecharModalClick(event,'modal-cliente')">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-num">Novo cadastro</div>
+        <div class="modal-nome" style="font-size:18px;">👤 Cadastrar Cliente</div>
+      </div>
+      <button class="modal-close" onclick="fechar('modal-cliente')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Nome / Razão Social *</label>
+          <input id="cli-nome" type="text" placeholder="Ex: Construtora ABC Ltda."/>
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="cli-tipo">
+            <option value="Pessoa Jurídica">Pessoa Jurídica</option>
+            <option value="Pessoa Física">Pessoa Física</option>
+            <option value="Órgão Público">Órgão Público</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>CNPJ / CPF</label>
+          <input id="cli-doc" type="text" placeholder="00.000.000/0001-00" maxlength="18"/>
+        </div>
+        <div class="form-group">
+          <label>E-mail *</label>
+          <input id="cli-email" type="email" placeholder="contato@empresa.com.br"/>
+        </div>
+        <div class="form-group">
+          <label>Telefone</label>
+          <input id="cli-tel" type="text" placeholder="(77) 99999-0000"/>
+        </div>
+        <div class="form-group full">
+          <label>Responsável pelo contato</label>
+          <input id="cli-resp" type="text" placeholder="Ex: João Silva — Gerente de obras"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-cliente')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarCliente()" style="margin-left:auto;">💾 Salvar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script src="storage.js"></script>
+<script>
+// ═══════════════════════════════════════
+//  DADOS PADRÃO (usados apenas no primeiro acesso)
+// ═══════════════════════════════════════
+const CLIENTES_PADRAO = [
+  { nome:'Clínica Saúde Total',    doc:'12.345.678/0001-90', email:'contato@clinicasaudetotal.com.br', tel:'(77) 3211-4500' },
+  { nome:'Restaurante Bela Vista', doc:'98.765.432/0001-10', email:'gerencia@belavista.com.br',        tel:'(77) 99812-3344' },
+  { nome:'Supermercado Central',   doc:'55.444.333/0001-22', email:'admin@supcentral.com.br',          tel:'(77) 3344-5566' },
+  { nome:'Hotel Serra Verde',      doc:'22.111.000/0001-44', email:'reservas@serraverde.com.br',       tel:'(77) 99700-1122' },
+  { nome:'Escola Municipal',       doc:'11.222.333/0001-55', email:'diretoria@escolamun.edu.br',       tel:'(77) 3200-9900' },
+  { nome:'Academia FitLife',       doc:'33.444.555/0001-66', email:'contato@fitlife.com.br',           tel:'(77) 99955-7788' },
+  { nome:'Atacado Norte Bahia',    doc:'77.888.999/0001-11', email:'compras@atacadonorteba.com.br',    tel:'(77) 3355-6600' },
+];
+
+const PROPOSTAS_PADRAO = [
+  {
+    id:'pr001', num:'#P001',
+    cliente:'Hotel Serra Verde', tipo:'PPCI — Proteção Contra Incêndio',
+    resp:'Pedro', validade:15, status:'aprovada',
+    versoes:[
+      { num:1, valor:12000, data:'10/02/2026', obs:'Proposta inicial' },
+      { num:2, valor:10500, data:'18/02/2026', obs:'Desconto para fechamento rápido' },
+    ],
+    historico:[
+      { data:'10/02/2026', categoria:'👤 Cliente',      texto:'Cliente entrou em contato por telefone solicitando projeto PPCI para o hotel.' },
+      { data:'12/02/2026', categoria:'📤 Envio',        texto:'Proposta enviada por e-mail. Valor inicial R$ 12.000.' },
+      { data:'17/02/2026', categoria:'🤝 Negociação',   texto:'Cliente retornou pedindo desconto. Iniciada negociação.' },
+      { data:'19/02/2026', categoria:'✅ Aprovada',     texto:'Nova versão enviada com valor de R$ 10.500. Cliente aceitou.' },
+    ],
+    dataCriacao:'10/02/2026', dataEnvio:'12/02/2026', dataResposta:'19/02/2026',
+    convertida:false, projetoNum:null,
+    pdfs:[ { nome:'Proposta_HotelSerraVerde_V1.pdf', data:'12/02/2026', versao:'V1' }, { nome:'Proposta_HotelSerraVerde_V2.pdf', data:'18/02/2026', versao:'V2' } ]
+  },
+  {
+    id:'pr002', num:'#P002',
+    cliente:'Academia FitLife', tipo:'PPCI — Proteção Contra Incêndio',
+    resp:'João', validade:30, status:'negociacao',
+    versoes:[
+      { num:1, valor:7800, data:'01/03/2026', obs:'Proposta inicial' },
+      { num:2, valor:7200, data:'15/03/2026', obs:'Revisão após visita técnica' },
+    ],
+    historico:[
+      { data:'01/03/2026', categoria:'👤 Cliente',    texto:'Cliente indicado por parceiro. Interesse em PPCI para academia de 800m².' },
+      { data:'03/03/2026', categoria:'📌 Geral',      texto:'Visita técnica realizada. Levantamento de carga de incêndio.' },
+      { data:'15/03/2026', categoria:'📤 Envio',      texto:'Segunda versão enviada após ajuste de escopo.' },
+      { data:'22/03/2026', categoria:'📞 Follow-up',  texto:'Cliente solicitou prazo para resposta até o fim do mês.' },
+    ],
+    dataCriacao:'01/03/2026', dataEnvio:'03/03/2026', dataResposta:null,
+    convertida:false, projetoNum:null,
+    pdfs:[ { nome:'Proposta_AcademiaFitLife_V1.pdf', data:'03/03/2026', versao:'V1' }, { nome:'Proposta_AcademiaFitLife_V2.pdf', data:'15/03/2026', versao:'V2' } ]
+  },
+  {
+    id:'pr003', num:'#P003',
+    cliente:'Atacado Norte Bahia', tipo:'PPCI + SPDA',
+    resp:'Pedro', validade:20, status:'enviada',
+    versoes:[
+      { num:1, valor:18500, data:'20/03/2026', obs:'Proposta inicial — galpão 2.400m²' },
+    ],
+    historico:[
+      { data:'18/03/2026', categoria:'👤 Cliente', texto:'Reunião inicial com sócio da empresa. Necessidade urgente para renovação do alvará.' },
+      { data:'20/03/2026', categoria:'📤 Envio',   texto:'Proposta enviada cobrindo PPCI e SPDA. Aguardando retorno.' },
+    ],
+    dataCriacao:'20/03/2026', dataEnvio:'20/03/2026', dataResposta:null,
+    convertida:false, projetoNum:null,
+    pdfs:[ { nome:'Proposta_AtacadoNorteBahia_V1.pdf', data:'20/03/2026', versao:'V1' } ]
+  },
+  {
+    id:'pr004', num:'#P004',
+    cliente:'Escola Municipal', tipo:'Laudo técnico',
+    resp:'Humberto', validade:15, status:'elaboracao',
+    versoes:[
+      { num:1, valor:3200, data:'27/03/2026', obs:'Proposta em elaboração' },
+    ],
+    historico:[
+      { data:'27/03/2026', categoria:'👤 Cliente', texto:'Secretaria de obras entrou em contato solicitando laudo técnico de PPCI para adequação da escola.' },
+    ],
+    dataCriacao:'27/03/2026', dataEnvio:null, dataResposta:null,
+    convertida:false, projetoNum:null,
+    pdfs:[]
+  },
+  {
+    id:'pr005', num:'#P005',
+    cliente:'Supermercado Central', tipo:'PPCI — Proteção Contra Incêndio',
+    resp:'João', validade:15, status:'recusada',
+    versoes:[
+      { num:1, valor:22000, data:'05/02/2026', obs:'Proposta inicial' },
+      { num:2, valor:19500, data:'12/02/2026', obs:'Segunda tentativa com desconto' },
+    ],
+    historico:[
+      { data:'05/02/2026', categoria:'👤 Cliente',  texto:'Contato inicial via site. Grande área — supermercado de 3.200m².' },
+      { data:'14/02/2026', categoria:'❌ Recusada', texto:'Cliente informou que optou por empresa concorrente com menor preço.' },
+    ],
+    dataCriacao:'05/02/2026', dataEnvio:'06/02/2026', dataResposta:'14/02/2026',
+    convertida:false, projetoNum:null,
+    pdfs:[ { nome:'Proposta_Supermercado_V1.pdf', data:'06/02/2026', versao:'V1' }, { nome:'Proposta_Supermercado_V2.pdf', data:'12/02/2026', versao:'V2' } ]
+  },
+];
+
+// ── Carrega do localStorage (ou usa dados padrão no primeiro acesso) ──
+let clientes  = carregarDados(DB_KEYS.clientes,  CLIENTES_PADRAO);
+let propostas = carregarDados(DB_KEYS.propostas, PROPOSTAS_PADRAO);
+
+let propostaAtivaId = null;
+let filtroAtual = 'abertas';
+let termoBusca = '';
+
+// ═══════════════════════════════════════
+//  PERSISTÊNCIA
+// ═══════════════════════════════════════
+// PDFs contêm fileObj (File), que não é serializável — stripa antes de salvar
+function salvarPropostas() {
+  const dados = propostas.map(p => ({
+    ...p,
+    pdfs: (p.pdfs || []).map(f => ({ nome: f.nome, data: f.data, versao: f.versao }))
+  }));
+  salvarDados(DB_KEYS.propostas, dados);
+}
+function salvarClientes() { salvarDados(DB_KEYS.clientes, clientes); }
+
+// Etapas usadas ao criar um projeto a partir de uma proposta
+const ETAPAS_PROJETO = [
+  'Aguardando documentos','Visita técnica','Em elaboração',
+  'Revisão interna','Entregue ao cliente','Protocolo CB',
+  'Em análise CB','Aprovado CB','Concluído'
+];
+
+// ═══════════════════════════════════════
+//  UTILITÁRIOS
+// ═══════════════════════════════════════
+function abrir(id) { document.getElementById(id).classList.add('open'); }
+function fechar(id) { document.getElementById(id).classList.remove('open'); }
+function fecharModalClick(e, id) { if (e.target.id === id) fechar(id); }
+
+function toast(msg, tipo='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + tipo;
+  clearTimeout(t._t); t._t = setTimeout(() => t.className = '', 3000);
+}
+
+function hoje() { return new Date().toLocaleDateString('pt-BR'); }
+
+function calcularValidade(dataCriacao, dias) {
+  if (!dataCriacao || !dias) return null;
+  const p = dataCriacao.split('/');
+  if (p.length !== 3) return null;
+  const d = new Date(`${p[2]}-${p[1]}-${p[0]}T12:00:00`);
+  d.setDate(d.getDate() + parseInt(dias));
+  return d;
+}
+
+function textoValidade(p) {
+  const v = calcularValidade(p.dataCriacao, p.validade);
+  if (!v) return '—';
+  const agora = new Date();
+  agora.setHours(0,0,0,0);
+  const diff = Math.round((v - agora) / 86400000);
+  const dataStr = v.toLocaleDateString('pt-BR');
+  if (p.status === 'aprovada' || p.status === 'recusada') return dataStr;
+  if (diff < 0) return `⚠️ Vencida em ${dataStr}`;
+  if (diff === 0) return `⚠️ Vence hoje`;
+  if (diff <= 3) return `⚠️ Vence em ${diff} dia${diff>1?'s':''} (${dataStr})`;
+  return `${dataStr} (${diff} dias)`;
+}
+
+function valorAtual(p) {
+  return p.versoes[p.versoes.length - 1]?.valor || 0;
+}
+
+function versaoAtual(p) {
+  return p.versoes.length;
+}
+
+const STATUS_LABEL = { elaboracao:'Em elaboração', enviada:'Enviada', negociacao:'Em negociação', aprovada:'Aprovada', recusada:'Recusada' };
+const STATUS_BADGE = { elaboracao:'badge-elaboracao', enviada:'badge-enviada', negociacao:'badge-negociacao', aprovada:'badge-aprovada', recusada:'badge-recusada' };
+const STATUS_ICON  = { elaboracao:'✏️', enviada:'📤', negociacao:'🤝', aprovada:'✅', recusada:'❌' };
+
+// ═══════════════════════════════════════
+//  RENDERIZAÇÃO
+// ═══════════════════════════════════════
+function render() {
+  renderPipeline();
+  renderCards();
+  atualizarContadores();
+}
+
+function renderPipeline() {
+  const counts = {};
+  ['elaboracao','enviada','negociacao','aprovada','recusada'].forEach(s => {
+    counts[s] = propostas.filter(p => p.status === s).length;
+  });
+  const items = [
+    { key:'elaboracao', label:'Em elaboração' },
+    { key:'enviada',    label:'Enviada' },
+    { key:'negociacao', label:'Em negociação' },
+    { key:'aprovada',   label:'Aprovada' },
+    { key:'recusada',   label:'Recusada' },
+  ];
+  document.getElementById('pipeline').innerHTML = items.map(it => `
+    <div class="pipe-card ${it.key}" onclick="filtrarPipeline('${it.key}')">
+      <div class="pipe-label">${it.label}</div>
+      <div class="pipe-num">${counts[it.key]}</div>
+      <div class="pipe-sub">${counts[it.key] === 1 ? 'proposta' : 'propostas'}</div>
+    </div>
+  `).join('');
+}
+
+function filtrarPipeline(status) {
+  // Toggle: clicar no mesmo status ativo volta para "Abertas"
+  if (filtroAtual === status) {
+    filtroAtual = 'abertas';
+  } else {
+    filtroAtual = status;
+  }
+  document.querySelectorAll('.filtro-pill').forEach(p => p.classList.remove('active'));
+  const alvoFiltro = filtroAtual;
+  const pill = [...document.querySelectorAll('.filtro-pill')].find(p => p.onclick?.toString().includes(`'${alvoFiltro}'`));
+  if (pill) pill.classList.add('active');
+  renderCards();
+}
+
+function renderCards() {
+  const grid = document.getElementById('propostas-grid');
+  const filtradas = propostas.filter(p => {
+    if (filtroAtual === 'abertas') return !['aprovada','recusada'].includes(p.status);
+    if (filtroAtual === 'todas')   return true;
+    if (p.status !== filtroAtual)  return false;
+    return true;
+  }).filter(p => {
+    if (!termoBusca) return true;
+    const t = termoBusca.toLowerCase();
+    return p.cliente.toLowerCase().includes(t) || p.num.toLowerCase().includes(t) || p.tipo.toLowerCase().includes(t);
+  });
+
+  if (!filtradas.length) {
+    grid.innerHTML = `<div class="vazio"><div class="icon">📭</div><p>Nenhuma proposta encontrada.</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = filtradas.map(p => {
+    const val = valorAtual(p);
+    const ver = versaoAtual(p);
+    const venc = textoValidade(p);
+    const vencVencida = venc.startsWith('⚠️');
+    const convertidaTag = p.convertida ? `<span style="font-size:10px;background:rgba(92,99,62,.15);color:var(--olive);padding:2px 8px;border-radius:10px;font-weight:700;">Projeto criado</span>` : '';
+    return `
+      <div class="prop-card ${p.status}" onclick="abrirDetalhe('${p.id}')">
+        <div class="card-top">
+          <div class="card-num">
+            <span>${p.num} · <span class="versao-tag">V${ver}</span></span>
+            <span class="badge ${STATUS_BADGE[p.status]}">${STATUS_ICON[p.status]} ${STATUS_LABEL[p.status]}</span>
+          </div>
+          <div class="card-nome">${p.cliente}</div>
+          <div class="card-tipo">${p.tipo}</div>
+          <div class="card-valor">R$ ${val.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+          <div class="card-meta">
+            <span>👤 ${p.resp}</span>
+            <span style="${vencVencida?'color:var(--rust);font-weight:600;':''}">📅 ${venc}</span>
+          </div>
+          ${convertidaTag}
+        </div>
+        <div class="card-footer">
+          <span style="font-size:12px;color:var(--text-light);">Criada em ${p.dataCriacao}</span>
+          ${p.dataEnvio ? `<span style="font-size:12px;color:var(--text-light);">Enviada ${p.dataEnvio}</span>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function atualizarContadores() {
+  const abertas = propostas.filter(p => !['aprovada','recusada'].includes(p.status)).length;
+  document.getElementById('topbar-sub').textContent = `${abertas} proposta${abertas!==1?'s':''} em aberto`;
+  document.getElementById('badge-count').textContent = abertas;
+  // Pills
+  document.querySelectorAll('.filtro-pill').forEach(pill => {
+    const match = pill.onclick?.toString().match(/'(\w+)'/);
+    if (!match) return;
+    const f = match[1];
+    const counts = {
+      abertas:    propostas.filter(p=>!['aprovada','recusada'].includes(p.status)).length,
+      todas:      propostas.length,
+      elaboracao: propostas.filter(p=>p.status==='elaboracao').length,
+      enviada:    propostas.filter(p=>p.status==='enviada').length,
+      negociacao: propostas.filter(p=>p.status==='negociacao').length,
+      aprovada:   propostas.filter(p=>p.status==='aprovada').length,
+      recusada:   propostas.filter(p=>p.status==='recusada').length,
+    };
+    const label = { abertas:'⚡ Abertas', todas:'Todas', elaboracao:'✏️ Em elaboração', enviada:'📤 Enviadas', negociacao:'🤝 Em negociação', aprovada:'✅ Aprovadas', recusada:'❌ Recusadas' };
+    if (label[f] !== undefined) pill.textContent = `${label[f]} (${counts[f]})`;
+  });
+}
+
+function filtrar(el, status) {
+  document.querySelectorAll('.filtro-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  filtroAtual = status;
+  renderCards();
+}
+
+function buscar(val) {
+  termoBusca = val;
+  renderCards();
+}
+
+// ═══════════════════════════════════════
+//  DETALHE
+// ═══════════════════════════════════════
+function abrirDetalhe(id) {
+  propostaAtivaId = id;
+  const p = propostas.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('d-num').textContent = p.num;
+  document.getElementById('d-nome').textContent = p.cliente;
+  document.getElementById('d-tipo').textContent = p.tipo;
+  document.getElementById('d-tipo-info').textContent = p.tipo;
+  document.getElementById('d-cliente').textContent = p.cliente;
+  document.getElementById('d-resp').textContent = p.resp;
+  document.getElementById('d-valor').textContent = 'R$ ' + valorAtual(p).toLocaleString('pt-BR', {minimumFractionDigits:2}) + ' (V' + versaoAtual(p) + ')';
+  document.getElementById('d-criacao').textContent = p.dataCriacao;
+  document.getElementById('d-envio').textContent = p.dataEnvio || '—';
+  document.getElementById('d-status').innerHTML = `<span class="badge ${STATUS_BADGE[p.status]}">${STATUS_ICON[p.status]} ${STATUS_LABEL[p.status]}</span>`;
+
+  // Validade
+  const venc = textoValidade(p);
+  const vencVencida = venc.startsWith('⚠️');
+  document.getElementById('d-validade').innerHTML = `<span style="${vencVencida?'color:var(--rust);font-weight:700;':''}">${venc}</span>`;
+
+  // Versões — V1 no topo, cresce para baixo
+  const totalVersoes = p.versoes.length;
+  document.getElementById('d-versoes').innerHTML = p.versoes.map((v) => {
+    const isAtual = v.num === totalVersoes;
+    return `
+      <div class="versao-item ${isAtual?'atual':''}">
+        <div class="versao-header">
+          <span class="versao-tag-label">Versão ${v.num}</span>
+          ${isAtual ? '<span class="versao-atual-badge">Atual</span>' : ''}
+          <span class="versao-data-label">${v.data}</span>
+        </div>
+        <div class="versao-body">
+          <div class="versao-valor">R$ ${v.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+          ${v.obs ? `<div class="versao-obs">${v.obs}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+
+  // Histórico — mais antigo primeiro, cresce para baixo — design igual obs-item dos projetos
+  const hist = p.historico;
+  document.getElementById('d-historico').innerHTML = hist.length
+    ? hist.map(h => `
+        <div class="obs-item">
+          <div class="obs-etapa-header">
+            <span>📌</span>
+            <span class="obs-etapa-tag">${h.categoria || '📌 Geral'}</span>
+            <span class="obs-etapa-data">${h.data}</span>
+          </div>
+          <div class="obs-texto">${h.texto}</div>
+        </div>`).join('')
+    : `<div style="font-size:13px;color:var(--text-light);padding:8px 0;">Nenhum registro ainda.</div>`;
+
+  // PDFs
+  renderPDFs(p);
+
+  // Ações dinâmicas
+  renderAcoes(p);
+
+  abrir('modal-detalhe');
+}
+
+function renderAcoes(p) {
+  const el = document.getElementById('d-acoes');
+  let html = `<button class="btn btn-outline btn-sm" onclick="contatarCliente()">📧 Contatar cliente</button>`;
+  html += `<button class="btn btn-primary btn-sm" onclick="abrirFormEditar()">✏️ Editar</button>`;
+
+  if (p.status === 'elaboracao') {
+    html += `<button class="btn btn-outline btn-sm" onclick="confirmarAcao('enviada','Marcar como enviada','Confirma que a proposta foi enviada ao cliente?','btn-outline','Marcar enviada')">📤 Marcar como enviada</button>`;
+  }
+  if (p.status === 'enviada') {
+    html += `<button class="btn btn-mustard btn-sm" onclick="confirmarAcao('negociacao','Iniciar negociação','O cliente solicitou revisão? Mova para negociação para registrar uma nova versão.','btn-mustard','Confirmar')">🤝 Em negociação</button>`;
+    html += `<button class="btn btn-olive btn-sm" onclick="confirmarAcao('aprovada','Aprovar proposta','Confirma que o cliente aprovou esta proposta?','btn-olive','✅ Aprovar')">✅ Aprovar</button>`;
+    html += `<button class="btn btn-danger btn-sm" onclick="confirmarAcao('recusada','Recusar proposta','Confirma que o cliente recusou a proposta?','btn-danger','❌ Recusar')">❌ Recusar</button>`;
+  }
+  if (p.status === 'negociacao') {
+    html += `<button class="btn btn-mustard btn-sm" onclick="abrirNovaVersao()">📝 Nova versão</button>`;
+    html += `<button class="btn btn-olive btn-sm" onclick="confirmarAcao('aprovada','Aprovar proposta','Confirma que o cliente aprovou esta versão?','btn-olive','✅ Aprovar')">✅ Aprovar</button>`;
+    html += `<button class="btn btn-danger btn-sm" onclick="confirmarAcao('recusada','Recusar proposta','Confirma que o cliente recusou a proposta?','btn-danger','❌ Recusar')">❌ Recusar</button>`;
+  }
+  if (p.status === 'aprovada' && !p.convertida) {
+    html += `<button class="btn btn-primary btn-sm" style="margin-left:auto;background:var(--olive);border-color:var(--olive);" onclick="confirmarConversao()">🚀 Converter em projeto</button>`;
+  }
+  if (p.status === 'aprovada' && p.convertida) {
+    html += `<span style="font-size:12px;color:var(--olive);font-weight:700;margin-left:auto;">✅ Projeto já criado (${p.projetoNum})</span>`;
+  }
+  if (p.status === 'recusada') {
+    html += `<button class="btn btn-outline btn-sm" onclick="confirmarAcao('elaboracao','Reabrir proposta','Reabre esta proposta para revisão e novo envio.','btn-outline','Reabrir')">↩ Reabrir</button>`;
+  }
+
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════
+//  AÇÕES DE STATUS
+// ═══════════════════════════════════════
+function confirmarAcao(novoStatus, titulo, texto, btnClass, btnLabel) {
+  document.getElementById('c-titulo').textContent = titulo;
+  document.getElementById('c-texto').textContent = texto;
+  document.getElementById('c-btn-ok').className = `btn ${btnClass} btn-sm`;
+  document.getElementById('c-btn-ok').textContent = btnLabel;
+  document.getElementById('c-btn-ok').onclick = () => { aplicarStatus(novoStatus); fechar('modal-confirm'); };
+  abrir('modal-confirm');
+}
+
+function aplicarStatus(novoStatus) {
+  const p = propostas.find(x => x.id === propostaAtivaId);
+  if (!p) return;
+  // Avisa se está marcando como enviada sem PDF anexado
+  if (novoStatus === 'enviada' && (!p.pdfs || p.pdfs.length === 0)) {
+    toast('⚠️ Proposta marcada como enviada sem PDF anexado.', 'warning');
+  }
+  p.status = novoStatus;
+  if (novoStatus === 'enviada' && !p.dataEnvio) p.dataEnvio = hoje();
+  if (['aprovada','recusada'].includes(novoStatus)) p.dataResposta = hoje();
+  if (novoStatus === 'elaboracao') { p.dataEnvio = null; p.dataResposta = null; }
+  // Registra no histórico
+  const msgs = {
+    enviada:'Proposta marcada como enviada ao cliente.',
+    negociacao:'Iniciada negociação.',
+    aprovada:'✅ Proposta aprovada pelo cliente.',
+    recusada:'❌ Proposta recusada pelo cliente.',
+    elaboracao:'Proposta reaberta para revisão.',
+  };
+  const cats = { enviada:'📤 Envio', negociacao:'🤝 Negociação', aprovada:'✅ Aprovada', recusada:'❌ Recusada', elaboracao:'📋 Atualização' };
+  p.historico.push({ data: hoje(), categoria: cats[novoStatus] || '📌 Geral', texto: msgs[novoStatus] || `Status alterado para ${STATUS_LABEL[novoStatus]}` });
+  salvarPropostas();
+  render();
+  abrirDetalhe(p.id);
+  toast(`${STATUS_LABEL[novoStatus]} registrado ✓`, novoStatus === 'aprovada' ? 'success' : novoStatus === 'recusada' ? 'error' : '');
+}
+
+// ═══════════════════════════════════════
+//  NOVA VERSÃO
+// ═══════════════════════════════════════
+function abrirNovaVersao() {
+  const p = propostas.find(x => x.id === propostaAtivaId);
+  if (!p) return;
+  document.getElementById('v-subtitulo').textContent = `${p.cliente} · Versão atual: V${versaoAtual(p)} — R$ ${valorAtual(p).toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
+  document.getElementById('v-valor').value = '';
+  document.getElementById('v-obs').value = '';
+  fechar('modal-detalhe');
+  abrir('modal-versao');
+  setTimeout(() => document.getElementById('v-valor').focus(), 200);
+}
+
+function salvarNovaVersao() {
+  const valor = parseFloat(document.getElementById('v-valor').value);
+  const obs   = document.getElementById('v-obs').value.trim();
+  if (!valor || valor <= 0) { toast('Informe o novo valor.','warning'); return; }
+  if (!obs) { toast('Informe o motivo da revisão.','warning'); return; }
+  const p = propostas.find(x => x.id === propostaAtivaId);
+  if (!p) return;
+  const novaVer = versaoAtual(p) + 1;
+  p.versoes.push({ num: novaVer, valor, data: hoje(), obs });
+  p.historico.push({ data: hoje(), categoria: '🤝 Negociação', texto: `Nova versão V${novaVer} criada: R$ ${valor.toLocaleString('pt-BR', {minimumFractionDigits:2})} — ${obs}` });
+  salvarPropostas();
+  fechar('modal-versao');
+  render();
+  abrirDetalhe(p.id);
+  toast(`Versão V${novaVer} registrada ✓`, 'success');
+}
+
+// ═══════════════════════════════════════
+//  CONVERTER EM PROJETO
+// ═══════════════════════════════════════
+function confirmarConversao() {
+  const p = propostas.find(x => x.id === propostaAtivaId);
+  if (!p) return;
+  document.getElementById('c-titulo').textContent = '🚀 Converter em projeto';
+  document.getElementById('c-texto').textContent = `Criar projeto para "${p.cliente}" com valor R$ ${valorAtual(p).toLocaleString('pt-BR', {minimumFractionDigits:2})}? Os dados da proposta serão usados como base.`;
+  document.getElementById('c-btn-ok').className = 'btn btn-primary btn-sm';
+  document.getElementById('c-btn-ok').textContent = '🚀 Criar projeto';
+  document.getElementById('c-btn-ok').onclick = () => { converterEmProjeto(); fechar('modal-confirm'); };
+  abrir('modal-confirm');
+}
+
+function converterEmProjeto() {
+  const p = propostas.find(x => x.id === propostaAtivaId);
+  if (!p) return;
+
+  // Gera número sequencial baseado nos projetos existentes
+  const projetosExistentes = carregarDados(DB_KEYS.projetos, []);
+  const maxNum = projetosExistentes.reduce((max, pr) => {
+    const n = parseInt(pr.num.replace('#','')) || 0;
+    return n > max ? n : max;
+  }, 0);
+  const numProjeto = '#' + String(maxNum + 1).padStart(3, '0');
+
+  p.convertida  = true;
+  p.projetoNum  = numProjeto;
+  p.historico.push({ data: hoje(), categoria: '📋 Atualização', texto: `🚀 Convertida em projeto ${numProjeto}. Acesse o módulo de Projetos para dar continuidade.` });
+
+  // Cria o projeto no localStorage compartilhado
+  const novoProjeto = {
+    id: `p${Date.now()}`,
+    num: numProjeto,
+    nome: p.cliente,
+    tipo: p.tipo,
+    cliente: p.cliente,
+    resp: p.resp,
+    valor: valorAtual(p),
+    inicio: hoje(),
+    prazo: 45,
+    etapaAtual: 0,
+    status: 'aguardando',
+    etapas: ETAPAS_PROJETO.map((e, i) => ({
+      nome: e,
+      estado: i === 0 ? 'active' : 'pending',
+      detalhe: i === 0 ? 'Em andamento' : ''
+    })),
+    obs: [{ etapa: 'Aguardando documentos', data: hoje(), texto: `Projeto originado da proposta ${p.num}. Valor contratado: R$ ${valorAtual(p).toLocaleString('pt-BR', {minimumFractionDigits:2})}` }],
+    parcelas: [],
+    anexos: []
+  };
+  projetosExistentes.unshift(novoProjeto);
+  salvarDados(DB_KEYS.projetos, projetosExistentes);
+
+  salvarPropostas();
+  render();
+  abrirDetalhe(p.id);
+  toast(`Projeto ${numProjeto} criado com sucesso! ✓`, 'success');
+}
+
+// ═══════════════════════════════════════
+//  OBSERVAÇÃO NO HISTÓRICO
+// ═══════════════════════════════════════
+function abrirModalObs() {
+  document.getElementById('obs-texto').value = '';
+  abrir('modal-obs');
+  setTimeout(() => document.getElementById('obs-texto').focus(), 200);
+}
+
+function salvarObs() {
+  const texto     = document.getElementById('obs-texto').value.trim();
+  const categoria = document.getElementById('obs-categoria').value;
+  if (!texto) { toast('Escreva a observação antes de salvar.','warning'); return; }
+  const p = propostas.find(x => x.id === propostaAtivaId);
+  if (!p) return;
+  p.historico.push({ data: hoje(), categoria, texto });
+  salvarPropostas();
+  fechar('modal-obs');
+  render();
+  abrirDetalhe(p.id);
+  toast('Registrado no histórico ✓', 'success');
+}
+
+// ═══════════════════════════════════════
+//  FORMULÁRIO NOVA / EDITAR
+// ═══════════════════════════════════════
+function popularSelectClientes(selecionado='') {
+  const sel = document.getElementById('f-cliente');
+  sel.innerHTML = '<option value="">— Selecione um cliente —</option>' +
+    clientes.map(c => `<option value="${c.nome}" ${c.nome===selecionado?'selected':''}>${c.nome}</option>`).join('');
+}
+
+// ═══════════════════════════════════════
+//  MULTI-SELECT TIPO DE SERVIÇO
+// ═══════════════════════════════════════
+function toggleTipoDrop(e) {
+  const drop = document.getElementById('tipo-dropdown');
+  const sel  = document.getElementById('tipo-select');
+  if (e.target.closest('.multi-sel-drop')) return;
+  drop.classList.toggle('aberto');
+  sel.classList.toggle('aberto');
+}
+
+function toggleTipoOpt(e, valor) {
+  e.stopPropagation();
+  const cb = [...document.querySelectorAll('#tipo-dropdown input')].find(c => c.value === valor);
+  if (cb) cb.checked = !cb.checked;
+  renderTipoTags();
+}
+
+function renderTipoTags() {
+  const sel = getTiposSelecionados();
+  const tags = document.getElementById('tipo-tags');
+  if (!sel.length) {
+    tags.innerHTML = '<span class="multi-sel-placeholder">Selecione os serviços...</span>';
+  } else {
+    tags.innerHTML = sel.map(s =>
+      `<span class="multi-sel-tag">${s} <span class="rm" onclick="removerTipo('${s}',event)">×</span></span>`
+    ).join('');
+  }
+}
+
+function removerTipo(valor, e) {
+  e.stopPropagation();
+  const cb = [...document.querySelectorAll('#tipo-dropdown input')].find(c => c.value === valor);
+  if (cb) { cb.checked = false; renderTipoTags(); }
+}
+
+function getTiposSelecionados() {
+  return [...document.querySelectorAll('#tipo-dropdown input[type=checkbox]:checked')].map(c => c.value);
+}
+
+function setTiposCheckboxes(tipoStr) {
+  const selecionados = tipoStr ? tipoStr.split(' + ') : [];
+  document.querySelectorAll('#tipo-dropdown input[type=checkbox]').forEach(c => {
+    c.checked = selecionados.includes(c.value);
+  });
+  renderTipoTags();
+}
+
+// Fecha dropdown ao clicar fora
+document.addEventListener('click', e => {
+  if (!e.target.closest('#tipo-select')) {
+    document.getElementById('tipo-dropdown')?.classList.remove('aberto');
+    document.getElementById('tipo-select')?.classList.remove('aberto');
+  }
+});
+
+function abrirFormNova() {
+  propostaAtivaId = null;
+  document.getElementById('form-titulo').textContent = 'Nova proposta';
+  document.getElementById('form-valor-titulo').textContent = 'Valor — Versão 1';
+  document.getElementById('btn-excluir').style.display = 'none';
+  popularSelectClientes();
+  setTiposCheckboxes('PPCI — Proteção Contra Incêndio');
+  document.getElementById('f-resp').value = 'Pedro';
+  document.getElementById('f-validade').value = '15';
+  document.getElementById('f-validade-info').textContent = 'Válida por 15 dias após a criação.';
+  document.getElementById('f-valor').value = '';
+  document.getElementById('f-versao-obs').value = 'Proposta inicial';
+  document.getElementById('f-obs').value = '';
+  document.getElementById('f-validade').oninput = atualizarHintValidade;
+  abrir('modal-form');
+}
+
+function abrirFormEditar() {
+  const p = propostas.find(x => x.id === propostaAtivaId);
+  if (!p) return;
+  document.getElementById('form-titulo').textContent = 'Editar proposta';
+  const verAtual = versaoAtual(p);
+  document.getElementById('form-valor-titulo').textContent = `Valor atual — V${verAtual} (novo valor cria V${verAtual + 1})`;
+  document.getElementById('btn-excluir').style.display = 'inline-flex';
+  popularSelectClientes(p.cliente);
+  setTiposCheckboxes(p.tipo);
+  document.getElementById('f-resp').value = p.resp;
+  document.getElementById('f-validade').value = p.validade;
+  document.getElementById('f-validade-info').textContent = `Válida por ${p.validade} dias.`;
+  document.getElementById('f-valor').value = valorAtual(p);
+  document.getElementById('f-versao-obs').value = '';
+  document.getElementById('f-obs').value = '';
+  document.getElementById('f-validade').oninput = atualizarHintValidade;
+  fechar('modal-detalhe');
+  abrir('modal-form');
+}
+
+function atualizarHintValidade() {
+  const v = parseInt(document.getElementById('f-validade').value);
+  document.getElementById('f-validade-info').textContent = v > 0 ? `Válida por ${v} dias após a criação.` : '—';
+}
+
+function salvarProposta() {
+  const cliente  = document.getElementById('f-cliente').value.trim();
+  const tipos    = getTiposSelecionados();
+  const tipo     = tipos.join(' + ');
+  const resp     = document.getElementById('f-resp').value;
+  const validade = parseInt(document.getElementById('f-validade').value);
+  const valor    = parseFloat(document.getElementById('f-valor').value);
+  const versObs  = document.getElementById('f-versao-obs').value.trim() || 'Proposta inicial';
+  const obs      = document.getElementById('f-obs').value.trim();
+
+  if (!cliente) { toast('Selecione um cliente.','warning'); return; }
+  if (!tipo)    { toast('Selecione ao menos um tipo de serviço.','warning'); return; }
+  if (!valor || valor <= 0) { toast('Informe o valor da proposta.','warning'); return; }
+  if (!validade || validade < 1) { toast('Informe a validade em dias.','warning'); return; }
+
+  if (propostaAtivaId) {
+    // Editar
+    const p = propostas.find(x => x.id === propostaAtivaId);
+    p.cliente  = cliente;
+    p.tipo     = tipo;
+    p.resp     = resp;
+    p.validade = validade;
+    // Se o valor mudou, cria nova versão
+    if (valor !== valorAtual(p)) {
+      const novaVer = versaoAtual(p) + 1;
+      p.versoes.push({ num: novaVer, valor, data: hoje(), obs: versObs || 'Atualização' });
+      p.historico.push({ data: hoje(), categoria: '📋 Atualização', texto: `Proposta editada. Nova versão V${novaVer}: R$ ${valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}` });
+    }
+    if (obs) p.historico.push({ data: hoje(), categoria: '📌 Geral', texto: obs });
+    salvarPropostas();
+    fechar('modal-form');
+    render();
+    abrirDetalhe(p.id);
+    toast('Proposta atualizada ✓', 'success');
+  } else {
+    // Nova
+    const novoId  = 'pr' + Date.now();
+    const novoNum = '#P' + String(propostas.length + 1).padStart(3,'0');
+    const nova = {
+      id: novoId, num: novoNum,
+      cliente, tipo, resp, validade, status: 'elaboracao',
+      versoes: [{ num:1, valor, data: hoje(), obs: versObs }],
+      historico: obs ? [{ data: hoje(), categoria: '📌 Geral', texto: obs }] : [],
+      dataCriacao: hoje(), dataEnvio: null, dataResposta: null,
+      convertida: false, projetoNum: null
+    };
+    propostas.unshift(nova);
+    salvarPropostas();
+    fechar('modal-form');
+    render();
+    toast('Proposta criada ✓', 'success');
+  }
+}
+
+// ═══════════════════════════════════════
+//  EXCLUIR
+// ═══════════════════════════════════════
+function confirmarExclusao() {
+  const p = propostas.find(x => x.id === propostaAtivaId);
+  if (!p) return;
+  document.getElementById('c-titulo').textContent = '🗑 Excluir proposta';
+  document.getElementById('c-texto').textContent = `Tem certeza que deseja excluir a proposta ${p.num} de "${p.cliente}"? Esta ação não pode ser desfeita.`;
+  document.getElementById('c-btn-ok').className = 'btn btn-danger btn-sm';
+  document.getElementById('c-btn-ok').textContent = 'Excluir';
+  document.getElementById('c-btn-ok').onclick = () => {
+    propostas = propostas.filter(x => x.id !== propostaAtivaId);
+    salvarPropostas();
+    fechar('modal-confirm');
+    fechar('modal-form');
+    render();
+    toast('Proposta excluída.','error');
+  };
+  abrir('modal-confirm');
+}
+
+// ═══════════════════════════════════════
+//  PDFs DA PROPOSTA
+// ═══════════════════════════════════════
+function renderPDFs(p) {
+  if (!p.pdfs) p.pdfs = [];
+  const el = document.getElementById('d-pdfs');
+  if (!p.pdfs.length) {
+    el.innerHTML = `<div style="border:2px dashed var(--cream-dark);border-radius:10px;padding:20px;text-align:center;color:var(--text-light);font-size:13px;">
+      <div style="font-size:24px;margin-bottom:6px;">📄</div>
+      Nenhum PDF anexado ainda. Clique em "+ Anexar PDF" para adicionar.
+    </div>`;
+    return;
+  }
+  el.innerHTML = p.pdfs.map((f, i) => `
+    <div style="display:flex;align-items:center;gap:12px;background:var(--cream);border-radius:8px;padding:12px 16px;margin-bottom:8px;">
+      <div style="width:36px;height:36px;background:var(--rust);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span style="color:#fff;font-size:14px;font-weight:800;">PDF</span>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--text-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.nome}</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:2px;">${f.versao ? `${f.versao} · ` : ''}${f.data}</div>
+      </div>
+      <button onclick="downloadPDF(${i})" style="background:none;border:none;cursor:pointer;color:var(--teal);font-size:17px;padding:4px 6px;border-radius:4px;line-height:1;" title="Baixar arquivo" onmouseover="this.style.background='rgba(34,93,101,.1)'" onmouseout="this.style.background='none'">⬇</button>
+      <button onclick="removerPDF(${i})" style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:18px;padding:4px;border-radius:4px;line-height:1;" title="Remover" onmouseover="this.style.color='var(--rust)'" onmouseout="this.style.color='var(--text-light)'">×</button>
+    </div>`).join('');
+}
+
+function anexarPDF(input) {
+  const p = propostas.find(x => x.id === propostaAtivaId);
+  if (!p || !input.files.length) return;
+  if (!p.pdfs) p.pdfs = [];
+  const versaoAtualStr = `V${versaoAtual(p)}`;
+  Array.from(input.files).forEach(file => {
+    p.pdfs.push({ nome: file.name, data: hoje(), versao: versaoAtualStr, fileObj: file });
+    p.historico.push({ data: hoje(), categoria: '📤 Envio', texto: `PDF anexado: ${file.name} (${versaoAtualStr})` });
+  });
+  salvarPropostas();
+  input.value = '';
+  renderPDFs(p);
+  render();
+  toast(`PDF anexado ✓`, 'success');
+}
+
+function downloadPDF(idx) {
+  const p = propostas.find(x => x.id === propostaAtivaId);
+  if (!p || !p.pdfs[idx]) return;
+  const pdf = p.pdfs[idx];
+  if (pdf.fileObj) {
+    const url = URL.createObjectURL(pdf.fileObj);
+    const a = document.createElement('a');
+    a.href = url; a.download = pdf.nome; a.click();
+    URL.revokeObjectURL(url);
+  } else {
+    toast('Arquivo de demonstração — não disponível para download.', 'warning');
+  }
+}
+
+function removerPDF(idx) {
+  const p = propostas.find(x => x.id === propostaAtivaId);
+  if (!p) return;
+  const nome = p.pdfs[idx]?.nome;
+  p.pdfs.splice(idx, 1);
+  salvarPropostas();
+  renderPDFs(p);
+  toast(`"${nome}" removido.`);
+}
+
+// ═══════════════════════════════════════
+//  CONTATAR CLIENTE
+// ═══════════════════════════════════════
+function formatarTel(tel) {
+  const n = tel.replace(/\D/g,'');
+  if (n.length === 11) return `(${n.slice(0,2)}) ${n.slice(2,7)}-${n.slice(7)}`;
+  if (n.length === 10) return `(${n.slice(0,2)}) ${n.slice(2,6)}-${n.slice(6)}`;
+  return tel;
+}
+
+function contatarCliente() {
+  const p   = propostas.find(x => x.id === propostaAtivaId);
+  if (!p) return;
+  const cli = clientes.find(c => c.nome === p.cliente);
+
+  document.getElementById('ct-nome').textContent = p.cliente;
+  document.getElementById('ct-resp').textContent = cli?.resp ? `Contato: ${cli.resp}` : '';
+
+  const email = cli?.email || '';
+  document.getElementById('ct-email-txt').textContent = email || 'E-mail não cadastrado';
+  const emailBtn = document.getElementById('ct-email-btn');
+  if (email) {
+    emailBtn.onclick = () => window.open(`mailto:${email}?subject=Proposta ${p.num} — Terra Engenharia`, '_blank');
+    emailBtn.style.opacity = '1'; emailBtn.style.cursor = 'pointer';
+  } else {
+    emailBtn.onclick = null; emailBtn.style.opacity = '.5'; emailBtn.style.cursor = 'not-allowed';
+  }
+
+  const tel = (cli?.tel || '').replace(/\D/g,'');
+  document.getElementById('ct-tel-txt').textContent = cli?.tel ? formatarTel(cli.tel) : 'Telefone não cadastrado';
+  const zapBtn = document.getElementById('ct-zap-btn');
+  if (tel) {
+    const num = tel.startsWith('55') ? tel : `55${tel}`;
+    zapBtn.onclick = () => window.open(`https://wa.me/${num}?text=Olá! Referente à proposta ${p.num} da Terra Engenharia.`, '_blank');
+    zapBtn.style.opacity = '1'; zapBtn.style.cursor = 'pointer';
+  } else {
+    zapBtn.onclick = null; zapBtn.style.opacity = '.5'; zapBtn.style.cursor = 'not-allowed';
+  }
+
+  abrir('modal-contato');
+}
+
+// ═══════════════════════════════════════
+//  CLIENTES
+// ═══════════════════════════════════════
+function abrirCadastroCliente() {
+  document.getElementById('cli-nome').value  = '';
+  document.getElementById('cli-tipo').value  = 'Pessoa Jurídica';
+  document.getElementById('cli-doc').value   = '';
+  document.getElementById('cli-email').value = '';
+  document.getElementById('cli-tel').value   = '';
+  document.getElementById('cli-resp').value  = '';
+  abrir('modal-cliente');
+  setTimeout(() => document.getElementById('cli-nome').focus(), 200);
+}
+
+function salvarCliente() {
+  const nome  = document.getElementById('cli-nome').value.trim();
+  const email = document.getElementById('cli-email').value.trim();
+  if (!nome)  { toast('Informe o nome do cliente.','warning'); return; }
+  if (!email) { toast('Informe o e-mail do cliente.','warning'); return; }
+  const novo = {
+    nome,
+    doc:  document.getElementById('cli-doc').value.trim(),
+    email,
+    tel:  document.getElementById('cli-tel').value.trim(),
+    resp: document.getElementById('cli-resp').value.trim(),
+  };
+  clientes.push(novo);
+  salvarClientes();
+  popularSelectClientes(nome);
+  fechar('modal-cliente');
+  toast(`Cliente "${nome}" cadastrado ✓`, 'success');
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+render();
+</script>
+</body>
+</html>

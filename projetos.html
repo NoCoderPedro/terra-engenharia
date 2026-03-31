@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terra Engenharia — Projetos</title>
+  <style>
+    :root {
+      --teal:      #225D65;
+      --teal-dark: #1a464d;
+      --rust:      #AE5238;
+      --mustard:   #D39932;
+      --olive:     #5C633E;
+      --cream:     #E3D8C6;
+      --cream-dark:#d4c9b4;
+      --white:     #ffffff;
+      --text-dark: #2c2c2c;
+      --text-mid:  #555;
+      --text-light:#888;
+      --sidebar-w: 240px;
+      --radius:    12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--cream); color: var(--text-dark); display: flex; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--teal); display: flex; flex-direction: column; position: fixed; top:0; left:0; height:100vh; z-index:100; transition: transform .3s; }
+    .sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,.12); }
+    .sidebar-logo .brand { font-size:18px; font-weight:700; color:#fff; }
+    .sidebar-logo .sub { font-size:11px; color:rgba(255,255,255,.5); margin-top:3px; letter-spacing:1px; text-transform:uppercase; }
+    .nav { padding: 16px 0; flex:1; }
+    .nav-section { font-size:10px; color:rgba(255,255,255,.4); letter-spacing:1.5px; text-transform:uppercase; padding:16px 24px 6px; }
+    .nav-item { display:flex; align-items:center; gap:12px; padding:11px 24px; color:rgba(255,255,255,.75); font-size:14px; cursor:pointer; border-left:3px solid transparent; transition:all .2s; }
+    .nav-item:hover { background:rgba(255,255,255,.08); color:#fff; }
+    .nav-item.active { background:rgba(255,255,255,.13); color:#fff; border-left-color:var(--mustard); font-weight:600; }
+    .nav-item .icon { font-size:18px; width:22px; text-align:center; }
+    .nav-badge { margin-left:auto; background:var(--rust); color:#fff; font-size:10px; font-weight:700; border-radius:20px; padding:2px 7px; }
+    .sidebar-user { padding:16px 24px; border-top:1px solid rgba(255,255,255,.12); display:flex; align-items:center; gap:12px; }
+    .avatar { width:36px; height:36px; border-radius:50%; background:var(--mustard); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; }
+    .sidebar-user .info .name { font-size:13px; color:#fff; font-weight:600; }
+    .sidebar-user .info .role { font-size:11px; color:rgba(255,255,255,.5); }
+
+    /* MAIN */
+    .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; }
+    .topbar { background:var(--white); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--cream-dark); position:sticky; top:0; z-index:50; }
+    .topbar-title { font-size:20px; font-weight:700; color:var(--teal); }
+    .topbar-sub { font-size:13px; color:var(--text-light); }
+
+    /* BOTÕES */
+    .btn { padding:8px 18px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all .2s; }
+    .btn-primary { background:var(--teal); color:#fff; }
+    .btn-primary:hover { background:var(--teal-dark); }
+    .btn-outline { background:transparent; color:var(--teal); border:1.5px solid var(--teal); }
+    .btn-outline:hover { background:var(--teal); color:#fff; }
+    .btn-danger { background:rgba(174,82,56,.1); color:var(--rust); border:1.5px solid rgba(174,82,56,.3); }
+    .btn-danger:hover { background:var(--rust); color:#fff; }
+    .btn-sm { padding:6px 14px; font-size:12px; }
+    .btn-avançar { background:rgba(92,99,62,.12); color:var(--olive); border:1.5px solid rgba(92,99,62,.3); }
+    .btn-avançar:hover { background:var(--olive); color:#fff; }
+    #ct-zap-btn:hover { background:#25D366 !important; color:#fff !important; }
+    #ct-zap-btn:hover #ct-tel-txt { opacity:1; }
+
+    .content { padding:28px 32px; flex:1; }
+
+    /* FILTROS */
+    .filtros { display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; align-items:center; }
+    .filtro-pill { padding:6px 16px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; border:1.5px solid var(--cream-dark); background:var(--white); color:var(--text-mid); transition:all .2s; }
+    .filtro-pill:hover { border-color:var(--teal); color:var(--teal); }
+    .filtro-pill.active { background:var(--teal); color:#fff; border-color:var(--teal); }
+    .search-box { margin-left:auto; display:flex; align-items:center; gap:8px; background:var(--white); border:1.5px solid var(--cream-dark); border-radius:8px; padding:6px 14px; }
+    .search-box input { border:none; outline:none; font-size:13px; color:var(--text-dark); background:transparent; width:180px; }
+
+    /* PIPELINE */
+    .pipeline { display:flex; gap:6px; margin-bottom:24px; overflow-x:auto; padding-bottom:4px; }
+    .pipe-step { display:flex; flex-direction:column; align-items:center; min-width:80px; flex:1; }
+    .pipe-label { font-size:10px; color:var(--text-light); text-align:center; margin-bottom:6px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; min-height:30px; display:flex; align-items:flex-end; justify-content:center; line-height:1.3; }
+    .pipe-bar { height:6px; width:100%; border-radius:3px; background:var(--cream-dark); }
+    .pipe-bar.has { background:var(--teal); }
+    .pipe-count { font-size:12px; font-weight:700; color:var(--teal); margin-top:4px; }
+    .pipe-count.zero { color:var(--text-light); font-weight:400; }
+
+    /* CARDS */
+    .projetos-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:16px; }
+    .projeto-card { background:var(--white); border-radius:var(--radius); box-shadow:0 1px 4px rgba(0,0,0,.06); overflow:hidden; cursor:pointer; transition:box-shadow .2s, transform .15s; border-top:4px solid var(--teal); }
+    .projeto-card:hover { box-shadow:0 6px 20px rgba(0,0,0,.1); transform:translateY(-2px); }
+    .projeto-card.atrasado { border-top-color:var(--rust); }
+    .projeto-card.aguardando { border-top-color:var(--mustard); }
+    .projeto-card.concluido { border-top-color:var(--olive); }
+    .card-top { padding:18px 20px 14px; }
+    .card-num { font-size:11px; color:var(--text-light); font-weight:600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px; }
+    .card-nome { font-size:16px; font-weight:700; color:var(--text-dark); margin-bottom:6px; }
+    .card-meta { display:flex; gap:12px; font-size:12px; color:var(--text-light); }
+    .card-etapa { padding:12px 20px; border-top:1px solid var(--cream); border-bottom:1px solid var(--cream); display:flex; align-items:center; justify-content:space-between; }
+    .etapa-nome { font-size:12px; font-weight:600; color:var(--teal); }
+    .etapa-dias { font-size:11px; color:var(--text-light); }
+    .progresso { padding:10px 20px; }
+    .prog-track { display:flex; gap:3px; margin-bottom:6px; }
+    .prog-seg { height:5px; flex:1; border-radius:2px; background:var(--cream-dark); }
+    .prog-seg.done { background:var(--olive); }
+    .prog-seg.active { background:var(--mustard); }
+    .prog-seg.late { background:var(--rust); }
+    .prog-texto { display:flex; justify-content:space-between; font-size:11px; color:var(--text-light); }
+    .card-footer { padding:12px 20px; display:flex; align-items:center; justify-content:space-between; }
+    .responsavel { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-mid); }
+    .resp-avatar { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff; }
+
+    /* BADGE */
+    .badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .badge::before { content:'●'; font-size:8px; }
+    .badge-teal    { background:rgba(34,93,101,.12); color:var(--teal); }
+    .badge-rust    { background:rgba(174,82,56,.12);  color:var(--rust); }
+    .badge-mustard { background:rgba(211,153,50,.15); color:#a67a00; }
+    .badge-olive   { background:rgba(92,99,62,.12);   color:var(--olive); }
+    .badge-gray    { background:rgba(0,0,0,.07);      color:var(--text-mid); }
+
+    /* MODAL BASE */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:200; align-items:center; justify-content:center; padding:20px; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--white); border-radius:16px; width:100%; max-width:680px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.2); overflow:hidden; }
+    .modal-header { padding:24px 28px 18px; border-bottom:1px solid var(--cream); display:flex; justify-content:space-between; align-items:flex-start; flex-shrink:0; background:var(--white); }
+    .modal-close { background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-light); line-height:1; padding:2px 6px; border-radius:6px; }
+    .modal-close:hover { background:var(--cream); }
+    .modal-body { padding:24px 28px; overflow-y:auto; flex:1; }
+    .modal-actions { display:flex; gap:10px; flex-wrap:wrap; padding:18px 28px; border-top:1px solid var(--cream); flex-shrink:0; background:var(--white); }
+    .modal-num { font-size:12px; color:var(--text-light); font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+    .modal-nome { font-size:22px; font-weight:800; color:var(--teal); margin-bottom:4px; }
+    .modal-tipo { font-size:13px; color:var(--text-light); margin-bottom:16px; }
+
+    /* INFO GRID */
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+    .info-item { background:var(--cream); border-radius:8px; padding:12px 16px; }
+    .info-label { font-size:11px; color:var(--text-light); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; font-weight:600; }
+    .info-value { font-size:14px; font-weight:700; color:var(--text-dark); }
+    .section-title { font-size:13px; font-weight:700; color:var(--teal); text-transform:uppercase; letter-spacing:.5px; margin-bottom:12px; }
+
+    /* TIMELINE */
+    .timeline { display:flex; flex-direction:column; gap:0; margin-bottom:24px; }
+    .tl-item { display:flex; gap:16px; }
+    .tl-left { display:flex; flex-direction:column; align-items:center; width:22px; flex-shrink:0; }
+    .tl-circle { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex-shrink:0; z-index:1; line-height:1; }
+    .tl-circle.done    { background:var(--olive); color:#fff; }
+    .tl-circle.active  { background:var(--mustard); color:#fff; box-shadow:0 0 0 3px rgba(211,153,50,.25); }
+    .tl-circle.late    { background:var(--rust); color:#fff; }
+    .tl-circle.pending { background:var(--white); border:2px solid #bfb5a5; }
+    .tl-line { width:2px; flex:1; background:#bfb5a5; min-height:16px; }
+    .tl-line.done { background:var(--olive); }
+    .tl-item:last-child .tl-line { display:none; }
+    .tl-content { padding:0 0 20px; flex:1; }
+    .tl-nome { font-size:14px; font-weight:600; color:var(--text-dark); }
+    .tl-nome.done { color:var(--olive); }
+    .tl-nome.active { color:var(--mustard); }
+    .tl-nome.late { color:var(--rust); }
+    .tl-detalhe { font-size:12px; color:var(--text-light); margin-top:2px; }
+    .tl-datas { display:flex; gap:16px; margin-top:3px; margin-bottom:2px; font-size:11px; font-weight:600; color:var(--text-mid); }
+    .tl-datas span { display:flex; align-items:center; gap:4px; }
+
+    /* OBSERVAÇÕES */
+    .obs-lista { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+    .obs-item { background:var(--cream); border-radius:8px; overflow:hidden; }
+    .obs-etapa-header { display:flex; align-items:center; gap:8px; padding:8px 14px; background:rgba(34,93,101,.09); border-bottom:1px solid var(--cream-dark); }
+    .obs-etapa-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--teal); }
+    .obs-etapa-data { font-size:10px; color:var(--text-light); margin-left:auto; }
+    .obs-texto { padding:10px 14px; font-size:13px; color:var(--text-mid); line-height:1.6; }
+
+    /* PARCELAS */
+    .parcela-list { display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
+    .parcela-item { display:flex; align-items:center; justify-content:space-between; background:var(--cream); border-radius:8px; padding:12px 16px; font-size:13px; }
+    .parcela-label { font-weight:600; color:var(--text-dark); }
+    .parcela-sub { font-size:11px; color:var(--text-light); margin-top:2px; }
+    .parcela-valor { font-weight:800; font-size:15px; }
+    .parcela-valor.pago { color:var(--olive); }
+    .parcela-valor.pendente { color:var(--mustard); }
+    .parcela-valor.vencido { color:var(--rust); }
+
+    /* FORMULÁRIO */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .form-group { display:flex; flex-direction:column; gap:6px; }
+    .form-group.full { grid-column:span 2; }
+    .form-label { font-size:12px; font-weight:600; color:var(--text-mid); text-transform:uppercase; letter-spacing:.5px; }
+    .form-input, .form-select, .form-textarea {
+      padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:8px;
+      font-size:14px; color:var(--text-dark); background:var(--white);
+      outline:none; transition:border-color .2s; font-family:inherit;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--teal); }
+    .form-textarea { resize:vertical; min-height:80px; }
+    .form-section { font-size:13px; font-weight:700; color:var(--teal); text-transform:uppercase; letter-spacing:.5px; margin:20px 0 12px; border-bottom:1px solid var(--cream); padding-bottom:8px; }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:28px; right:28px; background:var(--teal); color:#fff; padding:14px 20px; border-radius:10px; font-size:13px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,.2); z-index:999; transform:translateY(80px); opacity:0; transition:all .3s; pointer-events:none; }
+    .toast.show { transform:translateY(0); opacity:1; }
+    .toast.success { background:var(--olive); }
+    .toast.warning { background:var(--mustard); color:#333; }
+
+    /* MODAL CONFIRMAR */
+    .modal-sm { max-width:420px; }
+
+    /* VAZIO */
+    .vazio { text-align:center; padding:60px 20px; color:var(--text-light); }
+    .vazio .icon { font-size:48px; margin-bottom:12px; }
+    .vazio p { font-size:15px; }
+
+    /* MOBILE */
+    .hamburger { display:none; background:none; border:none; font-size:24px; cursor:pointer; color:var(--teal); }
+    .overlay-sb { display:none; }
+    @media (max-width:640px) {
+      .sidebar { transform:translateX(-100%); }
+      .sidebar.open { transform:translateX(0); }
+      .main { margin-left:0; }
+      .content { padding:16px; }
+      .topbar { padding:12px 16px; }
+      .hamburger { display:block; }
+      .overlay-sb { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:99; }
+      .overlay-sb.open { display:block; }
+      .projetos-grid { grid-template-columns:1fr; }
+      .info-grid, .form-grid { grid-template-columns:1fr; }
+      .form-group.full { grid-column:span 1; }
+      .pipeline { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="overlay-sb" id="overlay-sb" onclick="toggleSidebar()"></div>
+<div class="toast" id="toast"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">🏗 Terra Engenharia</div>
+    <div class="sub">Sistema de Gestão</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item" onclick="location.href='dashboard.html'"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-section">Operação</div>
+    <div class="nav-item" onclick="location.href='propostas.html'"><span class="icon">📋</span> Propostas <span class="nav-badge">3</span></div>
+    <div class="nav-item active"><span class="icon">📐</span> Projetos <span class="nav-badge" id="badge-count">4</span></div>
+    <div class="nav-item" onclick="location.href='financeiro.html'"><span class="icon">💰</span> Financeiro</div>
+    <div class="nav-section">Cadastros</div>
+    <div class="nav-item" onclick="location.href='clientes.html'"><span class="icon">👥</span> Clientes</div>
+    <div class="nav-item"><span class="icon">⚙️</span> Configurações</div>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar">P</div>
+    <div class="info"><div class="name">Pedro</div><div class="role">Sócio</div></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <div>
+        <div class="topbar-title">Projetos</div>
+        <div class="topbar-sub" id="topbar-sub">4 projetos ativos</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-outline btn-sm" onclick="exportarCSV()">⬇ Exportar</button>
+      <button class="btn btn-primary btn-sm" onclick="abrirFormNovo()">+ Novo Projeto</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Filtros -->
+    <div class="filtros">
+      <div class="filtro-pill active" onclick="filtrar(this,'ativos')">⚡ Ativos</div>
+      <div class="filtro-pill" onclick="filtrar(this,'atrasado')">🔴 Atrasados</div>
+      <div class="filtro-pill" onclick="filtrar(this,'aguardando')">🟡 Atenção</div>
+      <div class="filtro-pill" onclick="filtrar(this,'ativo')">🔵 Em dia</div>
+      <div class="filtro-pill" onclick="filtrar(this,'concluido')">🟢 Concluídos</div>
+      <div class="filtro-pill" onclick="filtrar(this,'todos')">Todos</div>
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Buscar projeto ou cliente..." oninput="buscar(this.value)"/>
+      </div>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="pipeline" id="pipeline"></div>
+
+    <!-- Grid -->
+    <div class="projetos-grid" id="projetos-grid"></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL DETALHE ═══ -->
+<div class="modal-overlay" id="modal-detalhe" onclick="fecharModalClick(event,'modal-detalhe')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-num" id="d-num"></div>
+        <div class="modal-nome" id="d-nome"></div>
+        <div class="modal-tipo" id="d-tipo"></div>
+      </div>
+      <button class="modal-close" onclick="fechar('modal-detalhe')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-grid">
+        <div class="info-item"><div class="info-label">Cliente</div><div class="info-value" id="d-cliente"></div></div>
+        <div class="info-item"><div class="info-label">Responsável</div><div class="info-value" id="d-resp"></div></div>
+        <div class="info-item"><div class="info-label">Valor Total</div><div class="info-value" id="d-valor"></div></div>
+        <div class="info-item"><div class="info-label">Status</div><div class="info-value" id="d-status"></div></div>
+        <div class="info-item" id="d-prazo-item" style="display:none;"><div class="info-label">Prazo</div><div class="info-value" id="d-prazo"></div></div>
+      </div>
+      <div class="section-title">Fluxo de Etapas</div>
+      <div class="timeline" id="d-timeline"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="section-title" style="margin-bottom:0;">Observações por Etapa</div>
+        <button class="btn btn-outline btn-sm" onclick="abrirNovaObs()">+ Nova observação</button>
+      </div>
+      <div class="obs-lista" id="d-obs"></div>
+      <div class="section-title">Parcelas</div>
+      <div class="parcela-list" id="d-parcelas"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-sm" onclick="abrirFormEditar()">✏️ Editar projeto</button>
+      <button class="btn btn-outline btn-sm" onclick="abrirAnexos()">📎 Anexos</button>
+      <button class="btn btn-outline btn-sm" onclick="contatarCliente()">📧 Contatar cliente</button>
+      <button class="btn btn-outline btn-sm" id="btn-voltar-etapa" onclick="confirmarRecuo()" style="margin-left:auto;" title="Voltar etapa">← Voltar</button>
+      <button class="btn btn-avançar btn-sm" id="btn-avancar-etapa" onclick="confirmarAvanco()">Avançar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL FORM (NOVO / EDITAR) ═══ -->
+<div class="modal-overlay" id="modal-form" onclick="fecharModalClick(event,'modal-form')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-num" id="f-titulo-sub"></div>
+        <div class="modal-nome" id="f-titulo"></div>
+      </div>
+      <button class="modal-close" onclick="fechar('modal-form')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">Informações do Projeto</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nome do projeto *</label>
+          <input class="form-input" id="f-nome" type="text" placeholder="Ex: Escola São Paulo"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo de projeto *</label>
+          <select class="form-select" id="f-tipo">
+            <option value="PPCI — Proteção Contra Incêndio">PPCI</option>
+            <option value="SPDA — Para-Raios">SPDA</option>
+            <option value="Hidráulico">Hidráulico</option>
+            <option value="Elétrico">Elétrico</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cliente *</label>
+          <div style="display:flex;gap:8px;">
+            <select class="form-select" id="f-cliente" style="flex:1;">
+              <option value="">— Selecione um cliente —</option>
+            </select>
+            <button type="button" class="btn btn-outline" onclick="abrirCadastroCliente()" title="Cadastrar novo cliente" style="flex-shrink:0;padding:10px 14px;font-size:13px;white-space:nowrap;">+ Cliente</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Responsável *</label>
+          <select class="form-select" id="f-resp">
+            <option value="Pedro">Pedro</option>
+            <option value="João">João</option>
+            <option value="Humberto">Humberto</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valor total (R$) *</label>
+          <input class="form-input" id="f-valor" type="number" placeholder="0,00" step="0.01"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data de início</label>
+          <input class="form-input" id="f-inicio" type="date"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prazo (dias úteis)</label>
+          <input class="form-input" id="f-prazo" type="number" placeholder="Ex: 30" min="1"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Entrega estimada</label>
+          <div style="background:var(--cream);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text-mid);height:42px;display:flex;align-items:center;" id="f-prazo-info">
+            —
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">Parcelas</div>
+      <div id="f-parcelas-container"></div>
+      <button class="btn btn-outline btn-sm" onclick="adicionarParcela()" style="margin-bottom:16px;">+ Adicionar parcela</button>
+
+      <div class="form-section">Observação inicial</div>
+      <div class="form-group full">
+        <label class="form-label">Observação (opcional)</label>
+        <textarea class="form-textarea" id="f-obs" placeholder="Anotações iniciais sobre o projeto..."></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-form')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" id="btn-excluir" onclick="confirmarExclusao()" style="display:none;">🗑 Excluir</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarProjeto()" style="margin-left:auto;">💾 Salvar projeto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL NOVA OBSERVAÇÃO ═══ -->
+<div class="modal-overlay" id="modal-obs" onclick="fecharModalClick(event,'modal-obs')">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-nome" style="font-size:18px;">📌 Nova Observação</div>
+      <button class="modal-close" onclick="fechar('modal-obs')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label">Etapa relacionada</label>
+        <select class="form-select" id="obs-etapa"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Observação *</label>
+        <textarea class="form-textarea" id="obs-texto" placeholder="Descreva o que aconteceu, decisões tomadas, pendências..." style="min-height:100px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-obs')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarObs()" style="margin-left:auto;">💾 Salvar observação</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL CADASTRO CLIENTE ═══ -->
+<div class="modal-overlay" id="modal-cliente" onclick="fecharModalClick(event,'modal-cliente')">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header">
+      <div class="modal-nome" style="font-size:18px;">👤 Cadastrar Cliente</div>
+      <button class="modal-close" onclick="fechar('modal-cliente')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label">Nome / Razão Social *</label>
+          <input class="form-input" id="cli-nome" type="text" placeholder="Ex: Construtora ABC Ltda."/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" id="cli-tipo">
+            <option value="Pessoa Jurídica">Pessoa Jurídica</option>
+            <option value="Pessoa Física">Pessoa Física</option>
+            <option value="Órgão Público">Órgão Público</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">CNPJ / CPF</label>
+          <input class="form-input" id="cli-doc" type="text" placeholder="00.000.000/0001-00" maxlength="18"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail *</label>
+          <input class="form-input" id="cli-email" type="email" placeholder="contato@empresa.com.br"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone</label>
+          <input class="form-input" id="cli-tel" type="text" placeholder="(11) 99999-0000"/>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Responsável pelo contato</label>
+          <input class="form-input" id="cli-resp" type="text" placeholder="Ex: João Silva — Gerente de obras"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-cliente')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="salvarCliente()" style="margin-left:auto;">💾 Salvar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL CONTATAR CLIENTE ═══ -->
+<div class="modal-overlay" id="modal-contato" onclick="fecharModalClick(event,'modal-contato')">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-nome" style="font-size:18px;">📞 Contatar Cliente</div>
+      <button class="modal-close" onclick="fechar('modal-contato')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--cream);border-radius:10px;padding:16px 18px;margin-bottom:20px;">
+        <div style="font-size:11px;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Cliente</div>
+        <div style="font-size:16px;font-weight:700;color:var(--teal);" id="ct-nome"></div>
+        <div style="font-size:12px;color:var(--text-mid);margin-top:4px;" id="ct-resp"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn btn-outline" id="ct-email-btn" style="justify-content:flex-start;gap:12px;padding:14px 18px;font-size:14px;text-align:left;width:100%;">
+          <span style="font-size:20px;">📧</span>
+          <div>
+            <div style="font-weight:700;">Enviar e-mail</div>
+            <div style="font-size:12px;color:var(--text-light);font-weight:400;" id="ct-email-txt"></div>
+          </div>
+        </button>
+        <button class="btn btn-outline" id="ct-zap-btn" style="justify-content:flex-start;gap:12px;padding:14px 18px;font-size:14px;text-align:left;width:100%;border-color:#25D366;color:#25D366;">
+          <span style="font-size:20px;">💬</span>
+          <div>
+            <div style="font-weight:700;">Abrir no WhatsApp</div>
+            <div style="font-size:12px;font-weight:400;opacity:.75;" id="ct-tel-txt"></div>
+          </div>
+        </button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-contato')" style="margin-left:auto;">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL CONFIRMAÇÃO ═══ -->
+<div class="modal-overlay" id="modal-confirm" onclick="fecharModalClick(event,'modal-confirm')">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-nome" id="c-titulo" style="font-size:18px;"></div>
+      <button class="modal-close" onclick="fechar('modal-confirm')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="c-texto" style="font-size:14px;color:var(--text-mid);line-height:1.6;"></p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-confirm')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" id="c-btn-ok" style="margin-left:auto;">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL PROTOCOLO CB ═══ -->
+<div class="modal-overlay" id="modal-protocolo" onclick="fecharModalClick(event,'modal-protocolo')">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-nome" style="font-size:18px;">📋 Protocolo CB</div>
+      <button class="modal-close" onclick="fechar('modal-protocolo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px;line-height:1.6;">
+        Informe o número e o ano do protocolo gerado pelo Corpo de Bombeiros.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;gap:12px;align-items:flex-end;">
+          <div style="display:flex;flex-direction:column;gap:6px;flex:2;">
+            <label style="font-size:12px;font-weight:600;color:var(--text-dark);">Número</label>
+            <input id="input-protocolo-num" type="text" placeholder="ex: 12345" maxlength="10"
+              style="border:1.5px solid var(--cream-dark);border-radius:8px;padding:10px 12px;font-size:15px;font-weight:700;color:var(--text-dark);outline:none;width:100%;background:#fff;"
+              oninput="this.value=this.value.replace(/\D/g,'');atualizarPreviewProtocolo()"
+              onkeydown="if(event.key==='Enter')document.getElementById('input-protocolo-ano').focus()"/>
+          </div>
+          <div style="padding-bottom:10px;font-size:20px;color:var(--text-light);font-weight:300;">/</div>
+          <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+            <label style="font-size:12px;font-weight:600;color:var(--text-dark);">Ano</label>
+            <input id="input-protocolo-ano" type="text" placeholder="2026" maxlength="4"
+              style="border:1.5px solid var(--cream-dark);border-radius:8px;padding:10px 12px;font-size:15px;font-weight:700;color:var(--text-dark);outline:none;width:100%;background:#fff;"
+              oninput="this.value=this.value.replace(/\D/g,'');atualizarPreviewProtocolo()"
+              onkeydown="if(event.key==='Enter')confirmarProtocolo()"/>
+          </div>
+        </div>
+        <div id="protocolo-preview" style="font-size:12px;color:var(--teal);font-weight:600;min-height:18px;padding:8px 12px;background:rgba(34,93,101,.07);border-radius:6px;display:none;"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-protocolo')">Cancelar</button>
+      <button class="btn btn-avançar btn-sm" onclick="confirmarProtocolo()" style="margin-left:auto;">Registrar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL ANEXOS ═══ -->
+<div class="modal-overlay" id="modal-anexos" onclick="fecharModalClick(event,'modal-anexos')">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-nome" style="font-size:18px;">📎 Anexos</div>
+      <button class="modal-close" onclick="fechar('modal-anexos')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="anexos-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+      <div style="border:2px dashed var(--cream-dark);border-radius:10px;padding:24px;text-align:center;color:var(--text-light);font-size:13px;cursor:pointer;" onclick="simularUpload()">
+        <div style="font-size:28px;margin-bottom:8px;">📁</div>
+        Clique para adicionar arquivo<br/>
+        <span style="font-size:11px;">PDF, DWG, DXF, JPG — até 50MB</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-anexos')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="storage.js"></script>
+<script>
+// ═══════════════════════════════════════
+//  DADOS
+// ═══════════════════════════════════════
+const ETAPAS = [
+  'Aguardando documentos','Visita técnica','Em elaboração',
+  'Revisão interna','Entregue ao cliente','Protocolo CB',
+  'Em análise CB','Aprovado CB','Concluído'
+];
+
+const RESP_CORES = { Pedro:'#225D65', João:'#D39932', Humberto:'#5C633E' };
+
+const CLIENTES_PADRAO_PROJ = [
+  { id:'c001', nome:'Secretaria Estadual de Educação', tipo:'Órgão Público',    doc:'01.234.567/0001-00', email:'secretaria@edu.sp.gov.br',      tel:'77998770692', resp:'Dra. Maria Souza' },
+  { id:'c002', nome:'Supermercados Central Ltda.',      tipo:'Pessoa Jurídica', doc:'12.345.678/0001-90', email:'contato@central.com.br',          tel:'77998770692', resp:'Carlos Mendonça' },
+  { id:'c003', nome:'Construtora Verde Vida S.A.',      tipo:'Pessoa Jurídica', doc:'23.456.789/0001-11', email:'contato@verdevida.com.br',        tel:'77998770692', resp:'Eng. Paulo Rocha' },
+  { id:'c004', nome:'Logística Sul Transportes',        tipo:'Pessoa Jurídica', doc:'34.567.890/0001-22', email:'operacoes@logisticasul.com.br',   tel:'77998770692', resp:'Eng. Carlos Menezes' },
+  { id:'c005', nome:'Clínica Saúde Total',              tipo:'Pessoa Jurídica', doc:'45.678.901/0001-33', email:'administracao@saudetotal.com.br', tel:'77998770692', resp:'Dr. Ricardo Alves' },
+  { id:'c006', nome:'Restaurante Bela Vista',           tipo:'Pessoa Jurídica', doc:'56.789.012/0001-44', email:'gerencia@belavista.com.br',       tel:'77998770692', resp:'Fernanda Lima' },
+  { id:'c007', nome:'Colégio Objetivo',                 tipo:'Pessoa Jurídica', doc:'67.890.123/0001-55', email:'infraestrutura@objetivo.edu.br',  tel:'77998770692', resp:'Marcos Oliveira' },
+];
+
+const PROJETOS_PADRAO = [
+  // ── CONCLUÍDO ──
+  {
+    id:'p001', num:'#001', nome:'Clínica Saúde Total', tipo:'PPCI — Proteção Contra Incêndio',
+    cliente:'Clínica Saúde Total', resp:'Pedro', prazo:45,
+    valor:8200, inicio:'10/09/2025', etapaAtual:8, status:'concluido',
+    etapas:[
+      { nome:'Aguardando documentos', estado:'done',   ini:'10/09/2025', fim:'15/09/2025', detalhe:'' },
+      { nome:'Visita técnica',         estado:'done',   ini:'15/09/2025', fim:'19/09/2025', detalhe:'' },
+      { nome:'Em elaboração',          estado:'done',   ini:'19/09/2025', fim:'08/10/2025', detalhe:'' },
+      { nome:'Revisão interna',        estado:'done',   ini:'08/10/2025', fim:'13/10/2025', detalhe:'' },
+      { nome:'Entregue ao cliente',    estado:'done',   ini:'13/10/2025', fim:'16/10/2025', detalhe:'' },
+      { nome:'Protocolo CB',           estado:'done',   ini:'20/10/2025', fim:'20/10/2025', detalhe:'' },
+      { nome:'Em análise CB',          estado:'done',   ini:'20/10/2025', fim:'14/11/2025', detalhe:'' },
+      { nome:'Aprovado CB',            estado:'done',   ini:'14/11/2025', fim:'18/11/2025', detalhe:'' },
+      { nome:'Concluído',              estado:'active', ini:'20/11/2025', fim:'20/11/2025', detalhe:'✅ Projeto encerrado' },
+    ],
+    obs:[
+      { etapa:'Visita técnica',      data:'19/09/2025', texto:'Imóvel com 380m². Estrutura compatível com sistema de extintores e hidrante simples.' },
+      { etapa:'Em elaboração',       data:'02/10/2025', texto:'Cliente aprovou croqui preliminar sem alterações. Projeto seguiu conforme levantamento.' },
+      { etapa:'Aprovado CB',         data:'18/11/2025', texto:'AVCB emitido. Número: AVCB-2025-8821. Validade 3 anos.' },
+    ],
+    parcelas:[
+      { label:'Parcela 1/2 — Assinatura',   venc:'15/09/2025', valor:4100, status:'pago' },
+      { label:'Parcela 2/2 — Aprovação CB', venc:'20/11/2025', valor:4100, status:'pago' },
+    ],
+    anexos:['PPCI_Clinica_Aprovado.pdf','AVCB_2025_8821.pdf','ART_final.pdf']
+  },
+  // ── CONCLUÍDO ──
+  {
+    id:'p002', num:'#002', nome:'Restaurante Bela Vista', tipo:'PPCI — Proteção Contra Incêndio',
+    cliente:'Restaurante Bela Vista', resp:'João', prazo:30,
+    valor:5400, inicio:'05/11/2025', etapaAtual:8, status:'concluido',
+    etapas:[
+      { nome:'Aguardando documentos', estado:'done',   ini:'05/11/2025', fim:'08/11/2025', detalhe:'' },
+      { nome:'Visita técnica',         estado:'done',   ini:'08/11/2025', fim:'12/11/2025', detalhe:'' },
+      { nome:'Em elaboração',          estado:'done',   ini:'12/11/2025', fim:'25/11/2025', detalhe:'' },
+      { nome:'Revisão interna',        estado:'done',   ini:'25/11/2025', fim:'28/11/2025', detalhe:'' },
+      { nome:'Entregue ao cliente',    estado:'done',   ini:'28/11/2025', fim:'02/12/2025', detalhe:'' },
+      { nome:'Protocolo CB',           estado:'done',   ini:'05/12/2025', fim:'05/12/2025', detalhe:'' },
+      { nome:'Em análise CB',          estado:'done',   ini:'05/12/2025', fim:'22/12/2025', detalhe:'' },
+      { nome:'Aprovado CB',            estado:'done',   ini:'22/12/2025', fim:'27/12/2025', detalhe:'' },
+      { nome:'Concluído',              estado:'active', ini:'03/01/2026', fim:'03/01/2026', detalhe:'✅ Projeto encerrado' },
+    ],
+    obs:[
+      { etapa:'Em elaboração',   data:'18/11/2025', texto:'Projeto simples. Área de 220m² com cozinha industrial — necessário extintor CO₂ na cozinha.' },
+      { etapa:'Aprovado CB',     data:'27/12/2025', texto:'AVCB emitido. Número: AVCB-2025-9934. Cliente muito satisfeito com o prazo.' },
+    ],
+    parcelas:[
+      { label:'Parcela 1/2 — Assinatura',   venc:'10/11/2025', valor:2700, status:'pago' },
+      { label:'Parcela 2/2 — Aprovação CB', venc:'03/01/2026', valor:2700, status:'pago' },
+    ],
+    anexos:['PPCI_Restaurante.pdf','AVCB_2025_9934.pdf']
+  },
+  // ── ATRASADO ──
+  {
+    id:'p005', num:'#005', nome:'Escola São Paulo', tipo:'PPCI — Proteção Contra Incêndio',
+    cliente:'Secretaria Estadual de Educação', resp:'Humberto', prazo:60,
+    valor:6800, inicio:'03/02/2026', etapaAtual:1, status:'atrasado',
+    etapas:[
+      { nome:'Aguardando documentos', estado:'done', ini:'03/02/2026', fim:'10/02/2026', detalhe:'' },
+      { nome:'Visita técnica',         estado:'late', ini:'10/02/2026', detalhe:'⚠️ Parado há 12 dias — cliente não confirmou data' },
+      ...ETAPAS.slice(2).map(e => ({ nome:e, estado:'pending', detalhe:'' }))
+    ],
+    obs:[
+      { etapa:'Aguardando documentos', data:'05/02/2026', texto:'Cliente enviou apenas planta baixa. Memorial descritivo e AVCB anterior ainda pendentes.' },
+      { etapa:'Visita técnica',        data:'16/02/2026', texto:'Cliente não confirmou data. Enviados 2 e-mails sem retorno. Verificar telefone alternativo.' },
+    ],
+    parcelas:[
+      { label:'Parcela 1/2 — Assinatura', venc:'15/02/2026', valor:3400, status:'vencido' },
+      { label:'Parcela 2/2 — Entrega',    venc:'A definir',  valor:3400, status:'pendente' },
+    ],
+    anexos:['Planta_baixa_escola.pdf','ART_2026.pdf']
+  },
+  // ── AGUARDANDO CB ──
+  {
+    id:'p004', num:'#004', nome:'Mercado Central', tipo:'PPCI — Proteção Contra Incêndio',
+    cliente:'Supermercados Central Ltda.', resp:'Pedro', prazo:50,
+    valor:9600, inicio:'10/01/2026', etapaAtual:5, status:'aguardando',
+    etapas:[
+      { nome:'Aguardando documentos', estado:'done',   ini:'10/01/2026', fim:'15/01/2026', detalhe:'' },
+      { nome:'Visita técnica',         estado:'done',   ini:'15/01/2026', fim:'20/01/2026', detalhe:'' },
+      { nome:'Em elaboração',          estado:'done',   ini:'20/01/2026', fim:'05/02/2026', detalhe:'' },
+      { nome:'Revisão interna',        estado:'done',   ini:'05/02/2026', fim:'10/02/2026', detalhe:'' },
+      { nome:'Entregue ao cliente',    estado:'done',   ini:'10/02/2026', fim:'14/03/2026', detalhe:'' },
+      { nome:'Protocolo CB',           estado:'active', ini:'21/03/2026',                  detalhe:'Protocolo nº CB-2026-4471 · Aguardando análise' },
+      ...ETAPAS.slice(6).map(e => ({ nome:e, estado:'pending', detalhe:'' }))
+    ],
+    obs:[
+      { etapa:'Visita técnica',  data:'22/01/2026', texto:'Área de 1.240m². Pé-direito de 6m na área de estoque — verificar exigência de sprinklers.' },
+      { etapa:'Em elaboração',   data:'08/02/2026', texto:'Cliente solicitou alteração no layout do setor de hortifrúti. Ajustada localização dos extintores.' },
+      { etapa:'Protocolo CB',    data:'21/03/2026', texto:'Protocolo nº CB-2026-4471. Prazo médio de análise: 15 a 30 dias úteis.' },
+    ],
+    parcelas:[
+      { label:'Parcela 1/2 — Assinatura',   venc:'20/01/2026',  valor:4800, status:'pago' },
+      { label:'Parcela 2/2 — Aprovação CB', venc:'Na aprovação', valor:4800, status:'pendente' },
+    ],
+    anexos:['Projeto_PPCI_Mercado.pdf','Memorial_descritivo.docx','Protocolo_CB.pdf']
+  },
+  // ── EM DIA ──
+  {
+    id:'p003', num:'#003', nome:'Condomínio Verde', tipo:'PPCI — Proteção Contra Incêndio',
+    cliente:'Construtora Verde Vida S.A.', resp:'João', prazo:45,
+    valor:9600, inicio:'20/01/2026', etapaAtual:2, status:'ativo',
+    etapas:[
+      { nome:'Aguardando documentos', estado:'done',   ini:'20/01/2026', fim:'25/01/2026', detalhe:'' },
+      { nome:'Visita técnica',         estado:'done',   ini:'25/01/2026', fim:'30/01/2026', detalhe:'' },
+      { nome:'Em elaboração',          estado:'active', ini:'23/03/2026',                  detalhe:'Em andamento · 5 dias nesta etapa' },
+      ...ETAPAS.slice(3).map(e => ({ nome:e, estado:'pending', detalhe:'' }))
+    ],
+    obs:[
+      { etapa:'Aguardando documentos', data:'26/01/2026', texto:'Cliente entregou toda documentação no prazo. Plantas completas e AVCB anterior disponíveis.' },
+      { etapa:'Em elaboração',         data:'23/02/2026', texto:'Inconsistências na planta da garagem — pilares não batem com fachada. Verificar com cliente.' },
+    ],
+    parcelas:[
+      { label:'Parcela 1/2 — Assinatura',   venc:'25/01/2026',  valor:4800, status:'pago' },
+      { label:'Parcela 2/2 — Aprovação CB', venc:'Na aprovação', valor:4800, status:'pendente' },
+    ],
+    anexos:['Plantas_Condominio.zip']
+  },
+  // ── AGUARDANDO DOCS ──
+  {
+    id:'p006', num:'#006', nome:'Galpão Logístico', tipo:'PPCI — Proteção Contra Incêndio',
+    cliente:'Logística Sul Transportes', resp:'João', prazo:40,
+    valor:15000, inicio:'15/03/2026', etapaAtual:0, status:'aguardando',
+    etapas:[
+      { nome:'Aguardando documentos', estado:'active', ini:'15/03/2026', detalhe:'⏳ Aguardando há 13 dias — cliente não enviou plantas' },
+      ...ETAPAS.slice(1).map(e => ({ nome:e, estado:'pending', detalhe:'' }))
+    ],
+    obs:[
+      { etapa:'Aguardando documentos', data:'16/03/2026', texto:'Cliente assinou contrato mas não enviou plantas. Solicitado por e-mail em 16/03.' },
+      { etapa:'Aguardando documentos', data:'22/03/2026', texto:'Segundo e-mail sem retorno. Contato: Eng. Carlos Menezes (77) 99877-0692.' },
+    ],
+    parcelas:[
+      { label:'Parcela 1/3 — Assinatura',     venc:'15/03/2026',  valor:5000, status:'pago' },
+      { label:'Parcela 2/3 — Entrega projeto', venc:'Na entrega',  valor:5000, status:'pendente' },
+      { label:'Parcela 3/3 — Aprovação CB',   venc:'Na aprovação', valor:5000, status:'pendente' },
+    ],
+    anexos:[]
+  },
+  // ── EM DIA (SPDA) ──
+  {
+    id:'p007', num:'#007', nome:'Colégio Objetivo', tipo:'SPDA — Para-Raios',
+    cliente:'Colégio Objetivo', resp:'Humberto', prazo:35,
+    valor:7200, inicio:'01/03/2026', etapaAtual:3, status:'ativo',
+    etapas:[
+      { nome:'Aguardando documentos', estado:'done',   ini:'01/03/2026', fim:'05/03/2026', detalhe:'' },
+      { nome:'Visita técnica',         estado:'done',   ini:'05/03/2026', fim:'10/03/2026', detalhe:'' },
+      { nome:'Em elaboração',          estado:'done',   ini:'10/03/2026', fim:'22/03/2026', detalhe:'' },
+      { nome:'Revisão interna',        estado:'active', ini:'25/03/2026',                  detalhe:'Em revisão · 3 dias nesta etapa' },
+      ...ETAPAS.slice(4).map(e => ({ nome:e, estado:'pending', detalhe:'' }))
+    ],
+    obs:[
+      { etapa:'Visita técnica',  data:'10/03/2026', texto:'Edificação com 4 pavimentos. Necessário SPDA classe III conforme ABNT NBR 5419.' },
+      { etapa:'Em elaboração',   data:'15/03/2026', texto:'Definido pára-raios Franklin com captores laterais. Memorial descritivo em elaboração.' },
+      { etapa:'Revisão interna', data:'25/03/2026', texto:'Verificar cálculo de densidade de descarga — valor próximo ao limite da classe III.' },
+    ],
+    parcelas:[
+      { label:'Parcela 1/2 — Assinatura',   venc:'05/03/2026',  valor:3600, status:'pago' },
+      { label:'Parcela 2/2 — Aprovação CB', venc:'Na aprovação', valor:3600, status:'pendente' },
+    ],
+    anexos:['Planta_Colegio.pdf','NBR5419_referencia.pdf']
+  }
+];
+
+// ── Carrega do localStorage (ou usa dados padrão no primeiro acesso) ──
+let clientes = carregarDados(DB_KEYS.clientes, CLIENTES_PADRAO_PROJ);
+let projetos  = carregarDados(DB_KEYS.projetos, PROJETOS_PADRAO);
+
+let projetoAtivoId = null;
+let modoEdicao = false;
+let filtroAtual = 'ativos';
+let parcelas_form = [];
+
+// ═══════════════════════════════════════
+//  PERSISTÊNCIA
+// ═══════════════════════════════════════
+function salvarProjetos()  { salvarDados(DB_KEYS.projetos, projetos); }
+function salvarClientesP() { salvarDados(DB_KEYS.clientes, clientes); }
+
+// ═══════════════════════════════════════
+//  RENDERIZAÇÃO
+// ═══════════════════════════════════════
+function render() {
+  renderPipeline();
+  renderCards();
+  atualizarContadores();
+}
+
+function renderPipeline() {
+  const contagem = Array(9).fill(0);
+  projetos.forEach(p => { if (p.etapaAtual < 9) contagem[p.etapaAtual]++; });
+  document.getElementById('pipeline').innerHTML = ETAPAS.map((e,i) => `
+    <div class="pipe-step">
+      <div class="pipe-label">${e}</div>
+      <div class="pipe-bar ${contagem[i]>0?'has':''}"></div>
+      <div class="pipe-count ${contagem[i]===0?'zero':''}">${contagem[i]}</div>
+    </div>
+  `).join('');
+}
+
+function renderCards() {
+  const grid = document.getElementById('projetos-grid');
+  const filtrados = projetos.filter(p => {
+    if (filtroAtual === 'ativos') return p.status !== 'concluido';
+    if (filtroAtual === 'todos')  return true;
+    return p.status === filtroAtual;
+  });
+  if (!filtrados.length) {
+    grid.innerHTML = `<div class="vazio"><div class="icon">📭</div><p>Nenhum projeto encontrado.</p></div>`;
+    return;
+  }
+  grid.innerHTML = filtrados.map(p => {
+    const concluido   = p.status === 'concluido';
+    const etapaIdx    = p.etapaAtual;
+    const etapaNome   = ETAPAS[etapaIdx] || 'Concluído';
+    const pct         = concluido ? 100 : Math.round((etapaIdx / 9) * 100);
+    const segs        = ETAPAS.map((_,i) => {
+      if (concluido) return `<div class="prog-seg done"></div>`;
+      const e   = p.etapas[i];
+      if (!e) return `<div class="prog-seg"></div>`;
+      const cls = e.estado === 'done' ? 'done' : e.estado === 'active' ? 'active' : e.estado === 'late' ? 'late' : '';
+      return `<div class="prog-seg ${cls}"></div>`;
+    }).join('');
+
+    // Previsão de entrega
+    let previsao = '';
+    if (p.prazo && p.inicio && !concluido) {
+      const partes = p.inicio.split('/');
+      if (partes.length === 3) {
+        let d = new Date(`${partes[2]}-${partes[1]}-${partes[0]}T12:00:00`);
+        let dias = 0;
+        while (dias < p.prazo) { d.setDate(d.getDate()+1); if (d.getDay()!==0 && d.getDay()!==6) dias++; }
+        previsao = `📅 Previsão: ${d.toLocaleDateString('pt-BR')}`;
+      }
+    } else if (concluido) {
+      // pega data da última etapa
+      const ultima = p.etapas[p.etapas.length-1]?.detalhe || '';
+      const match  = ultima.match(/(\d{2}\/\d{2}\/\d{4})/);
+      previsao = match ? `✅ Concluído em ${match[1]}` : '✅ Concluído';
+    }
+
+    const badgeMap  = { atrasado:'badge-rust', aguardando:'badge-mustard', ativo:'badge-teal', concluido:'badge-olive' };
+    const badgeLbl  = { atrasado:'Atrasado', aguardando:'Aguardando', ativo:'Em dia', concluido:'Concluído' };
+    const iconeEtapa= { atrasado:'⚠️', aguardando:'🕐', ativo:'✏️', concluido:'✅' };
+    const corResp   = RESP_CORES[p.resp] || '#888';
+    return `
+      <div class="projeto-card ${p.status}" data-status="${p.status}" data-id="${p.id}" onclick="abrirDetalhe('${p.id}')">
+        <div class="card-top">
+          <div class="card-num">${p.num} · ${p.tipo.split('—')[0].trim()}</div>
+          <div class="card-nome">${p.nome}</div>
+          <div class="card-meta">
+            <span>👤 ${p.resp}</span>
+            <span>📅 Início: ${p.inicio}</span>
+          </div>
+          ${previsao ? `<div style="font-size:11px;margin-top:6px;font-weight:600;color:${concluido?'var(--olive)':'var(--teal)'};">${previsao}</div>` : ''}
+        </div>
+        <div class="card-etapa">
+          <div>
+            <div class="etapa-nome">${iconeEtapa[p.status]||''} ${etapaNome}</div>
+            <div class="etapa-dias">${!concluido ? (p.etapas[etapaIdx]?.detalhe||'') : ''}</div>
+          </div>
+          <span class="badge ${badgeMap[p.status]||'badge-gray'}">${badgeLbl[p.status]||p.status}</span>
+        </div>
+        <div class="progresso">
+          <div class="prog-track">${segs}</div>
+          <div class="prog-texto">
+            <span>${concluido ? 'Todas as etapas' : `Etapa ${etapaIdx+1} de 9`}</span>
+            <span style="color:${concluido?'var(--olive)':''};font-weight:${concluido?'700':''};">${pct}% concluído</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="responsavel">
+            <div class="resp-avatar" style="background:${corResp};">${p.resp[0]}</div>
+            ${p.resp}
+          </div>
+          <span style="font-size:13px;font-weight:700;color:var(--teal);">R$ ${p.valor.toLocaleString('pt-BR')}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function atualizarContadores() {
+  const ativos = projetos.filter(p => p.status !== 'concluido').length;
+  document.getElementById('topbar-sub').textContent = `${ativos} projeto${ativos!==1?'s':''} ativo${ativos!==1?'s':''}`;
+  document.getElementById('badge-count').textContent = ativos;
+  // Atualizar pills
+  document.querySelectorAll('.filtro-pill').forEach(pill => {
+    const f = pill.onclick?.toString().match(/'(\w+)'/)?.[1];
+    if (!f) return;
+    const nAtivos = projetos.filter(p=>p.status!=='concluido').length;
+    const counts = { todos: projetos.length, ativos: nAtivos, atrasado: projetos.filter(p=>p.status==='atrasado').length, aguardando: projetos.filter(p=>p.status==='aguardando').length, ativo: projetos.filter(p=>p.status==='ativo').length, concluido: projetos.filter(p=>p.status==='concluido').length };
+    const label = { todos:'Todos', ativos:'⚡ Ativos', atrasado:'🔴 Atrasados', aguardando:'🟡 Atenção', ativo:'🔵 Em dia', concluido:'🟢 Concluídos' };
+    if (label[f]) pill.textContent = `${label[f]} (${counts[f]})`;
+  });
+}
+
+// ═══════════════════════════════════════
+//  DETALHE
+// ═══════════════════════════════════════
+function abrirDetalhe(id) {
+  projetoAtivoId = id;
+  const p = projetos.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('d-num').textContent = p.num;
+  document.getElementById('d-nome').textContent = p.nome;
+  document.getElementById('d-tipo').textContent = p.tipo;
+  document.getElementById('d-cliente').textContent = p.cliente;
+  document.getElementById('d-resp').textContent = p.resp;
+  document.getElementById('d-valor').textContent = `R$ ${p.valor.toLocaleString('pt-BR')}`;
+  const statusMap = { atrasado:'🔴 Atrasado', aguardando:'🟡 Aguardando', ativo:'🔵 Em dia', concluido:'🟢 Concluído' };
+  document.getElementById('d-status').textContent = statusMap[p.status] || p.status;
+  const prazoEl = document.getElementById('d-prazo-item');
+  if (p.prazo) {
+    prazoEl.style.display = '';
+    document.getElementById('d-prazo').textContent = `${p.prazo} dias úteis`;
+  } else { prazoEl.style.display = 'none'; }
+
+  // Timeline
+  const tlIcon = { done:'✓', active:'●', late:'!', pending:'' };
+  document.getElementById('d-timeline').innerHTML = p.etapas.map(e => {
+    let datas = '';
+    if (e.ini && e.fim) {
+      datas = `<div class="tl-datas"><span>Início: ${e.ini}</span><span>Fim: ${e.fim}</span></div>`;
+    } else if (e.ini && (e.estado === 'active' || e.estado === 'late')) {
+      datas = `<div class="tl-datas"><span>Início: ${e.ini}</span><span style="color:var(--mustard);">Em andamento</span></div>`;
+    }
+    return `
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-circle ${e.estado}">${tlIcon[e.estado]||''}</div>
+        <div class="tl-line ${e.estado==='done'?'done':''}"></div>
+      </div>
+      <div class="tl-content">
+        <div class="tl-nome ${e.estado}">${e.nome}</div>
+        ${datas}
+        ${e.detalhe && !e.detalhe.startsWith('Concluído em') ? `<div class="tl-detalhe">${e.detalhe}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Observações
+  document.getElementById('d-obs').innerHTML = p.obs.length
+    ? p.obs.map(o => `
+        <div class="obs-item">
+          <div class="obs-etapa-header">
+            <span>📌</span>
+            <span class="obs-etapa-tag">${o.etapa}</span>
+            <span class="obs-etapa-data">${o.data}</span>
+          </div>
+          <div class="obs-texto">${o.texto}</div>
+        </div>`).join('')
+    : `<div style="color:var(--text-light);font-size:13px;padding:8px 0;">Nenhuma observação registrada.</div>`;
+
+  // Parcelas
+  const stCls = { pago:'pago', pendente:'pendente', vencido:'vencido' };
+  const stLbl = { pago:'✅ Pago', pendente:'🕐 Pendente', vencido:'🚨 Vencido' };
+  const renderParcelas = () => {
+    document.getElementById('d-parcelas').innerHTML = p.parcelas.map((pc, i) => `
+      <div class="parcela-item" style="gap:12px;">
+        <div style="flex:1;">
+          <div class="parcela-label">${pc.label}</div>
+          <div class="parcela-sub">Venc.: ${pc.venc}</div>
+        </div>
+        <div class="parcela-valor ${stCls[pc.status]}" style="white-space:nowrap;">R$ ${pc.valor.toLocaleString('pt-BR')}</div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          ${pc.status !== 'pago' ? `<button onclick="alterarParcela('${p.id}',${i},'pago')" style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;border:1.5px solid var(--olive);color:var(--olive);background:transparent;cursor:pointer;" title="Marcar como pago">✓ Pago</button>` : ''}
+          ${pc.status !== 'pendente' ? `<button onclick="alterarParcela('${p.id}',${i},'pendente')" style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;border:1.5px solid var(--mustard);color:#a67a00;background:transparent;cursor:pointer;" title="Marcar como pendente">↺ Pendente</button>` : ''}
+          ${pc.status !== 'vencido' ? `<button onclick="alterarParcela('${p.id}',${i},'vencido')" style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;border:1.5px solid var(--rust);color:var(--rust);background:transparent;cursor:pointer;" title="Marcar como vencido">! Vencido</button>` : ''}
+        </div>
+      </div>`).join('');
+  };
+  renderParcelas();
+  window._renderParcelasDetalhe = renderParcelas;
+
+  // Mostra/esconde botões de navegação de etapa
+  const concluido = p.status === 'concluido';
+  document.getElementById('btn-voltar-etapa').style.display = p.etapaAtual === 0 ? 'none' : 'inline-flex';
+  document.getElementById('btn-avancar-etapa').style.display = concluido ? 'none' : 'inline-flex';
+
+  abrir('modal-detalhe');
+}
+
+// ═══════════════════════════════════════
+//  PARCELA STATUS RÁPIDO
+// ═══════════════════════════════════════
+function alterarParcela(projetoId, idx, novoStatus) {
+  const p = projetos.find(x => x.id === projetoId);
+  if (!p) return;
+  const antiga = p.parcelas[idx].status;
+  p.parcelas[idx].status = novoStatus;
+  if (novoStatus === 'pago') {
+    const hoje = new Date().toLocaleDateString('pt-BR');
+    p.parcelas[idx].venc = hoje;
+  }
+  if (window._renderParcelasDetalhe) window._renderParcelasDetalhe();
+  render();
+  const lbl = { pago:'✓ Marcada como paga', pendente:'↺ Revertida para pendente', vencido:'! Marcada como vencida' };
+  toast(lbl[novoStatus] || 'Status atualizado', novoStatus === 'pago' ? 'success' : novoStatus === 'vencido' ? 'warning' : '');
+}
+
+// ═══════════════════════════════════════
+//  AVANÇAR ETAPA
+// ═══════════════════════════════════════
+const IDX_PROTOCOLO_CB = 5; // índice de "Protocolo CB" no array ETAPAS
+
+function confirmarAvanco() {
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  if (!p) return;
+  if (p.etapaAtual >= ETAPAS.length - 1) { toast('Este projeto já está na etapa final.','warning'); return; }
+  // Se a próxima etapa é Protocolo CB, pede o número
+  if (p.etapaAtual + 1 === IDX_PROTOCOLO_CB) {
+    document.getElementById('input-protocolo-num').value = '';
+    document.getElementById('input-protocolo-ano').value = new Date().getFullYear();
+    const prev = document.getElementById('protocolo-preview');
+    prev.style.display = 'none'; prev.textContent = '';
+    abrir('modal-protocolo');
+    setTimeout(() => document.getElementById('input-protocolo-num').focus(), 200);
+    return;
+  }
+  const proxEtapa = ETAPAS[p.etapaAtual + 1];
+  document.getElementById('c-titulo').textContent = 'Avançar etapa';
+  document.getElementById('c-texto').textContent = `Confirma o avanço do projeto "${p.nome}" para a etapa "${proxEtapa}"?`;
+  document.getElementById('c-btn-ok').onclick = () => { avancarEtapa(null); fechar('modal-confirm'); };
+  document.getElementById('c-btn-ok').className = 'btn btn-avançar btn-sm';
+  document.getElementById('c-btn-ok').textContent = 'Avançar →';
+  abrir('modal-confirm');
+}
+
+function atualizarPreviewProtocolo() {
+  const num = document.getElementById('input-protocolo-num').value.trim();
+  const ano = document.getElementById('input-protocolo-ano').value.trim();
+  const prev = document.getElementById('protocolo-preview');
+  if (num && ano) {
+    prev.style.display = 'block';
+    prev.textContent = `Será registrado como: Protocolo CB nº ${num}/${ano}`;
+  } else {
+    prev.style.display = 'none';
+    prev.textContent = '';
+  }
+}
+
+function confirmarProtocolo() {
+  const num = document.getElementById('input-protocolo-num').value.trim();
+  const ano = document.getElementById('input-protocolo-ano').value.trim();
+  if (!num) { toast('Informe o número do protocolo.','warning'); document.getElementById('input-protocolo-num').focus(); return; }
+  if (!ano || ano.length !== 4) { toast('Informe o ano com 4 dígitos.','warning'); document.getElementById('input-protocolo-ano').focus(); return; }
+  fechar('modal-protocolo');
+  avancarEtapa(`${num}/${ano}`);
+}
+
+function avancarEtapa(numProtocolo) {
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  if (!p) return;
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  // Conclui etapa atual — preserva detalhe importante (ex: nº protocolo), senão grava data
+  const detalheAtual = p.etapas[p.etapaAtual].detalhe || '';
+  p.etapas[p.etapaAtual].estado = 'done';
+  p.etapas[p.etapaAtual].fim = hoje;
+  if (!detalheAtual || detalheAtual === 'Em andamento') {
+    p.etapas[p.etapaAtual].detalhe = `Concluído em ${hoje}`;
+  }
+  p.etapaAtual++;
+  // Ativa próxima — registra data de início
+  if (p.etapaAtual < ETAPAS.length) {
+    p.etapas[p.etapaAtual].estado = 'active';
+    p.etapas[p.etapaAtual].ini = hoje;
+    // Se é Protocolo CB, salva o número formatado
+    if (p.etapaAtual === IDX_PROTOCOLO_CB && numProtocolo) {
+      p.etapas[p.etapaAtual].detalhe = `Protocolo CB nº ${numProtocolo}`;
+      p.protocolo_cb = numProtocolo;
+    } else {
+      p.etapas[p.etapaAtual].detalhe = 'Em andamento';
+    }
+    p.status = p.etapaAtual === ETAPAS.length - 1 ? 'concluido' : 'ativo';
+  }
+  salvarProjetos();
+  render();
+  abrirDetalhe(p.id);
+  toast(`Projeto avançado para "${ETAPAS[p.etapaAtual]}" ✓`, 'success');
+}
+
+// ═══════════════════════════════════════
+//  VOLTAR ETAPA
+// ═══════════════════════════════════════
+function confirmarRecuo() {
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  if (!p) return;
+  if (p.etapaAtual === 0) { toast('Este projeto já está na primeira etapa.','warning'); return; }
+  const etapaAnterior = ETAPAS[p.etapaAtual - 1];
+  document.getElementById('c-titulo').textContent = '↩ Voltar etapa';
+  document.getElementById('c-texto').textContent = `Confirma o retorno do projeto "${p.nome}" para a etapa "${etapaAnterior}"?`;
+  document.getElementById('c-btn-ok').onclick = () => { voltarEtapa(); fechar('modal-confirm'); };
+  document.getElementById('c-btn-ok').className = 'btn btn-danger btn-sm';
+  document.getElementById('c-btn-ok').textContent = '← Voltar';
+  abrir('modal-confirm');
+}
+
+function voltarEtapa() {
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  if (!p) return;
+  // Reverte etapa atual para pendente
+  p.etapas[p.etapaAtual].estado = 'pending';
+  p.etapas[p.etapaAtual].ini    = undefined;
+  p.etapas[p.etapaAtual].fim    = undefined;
+  p.etapas[p.etapaAtual].detalhe = '';
+  p.etapaAtual--;
+  // Reactiva etapa anterior
+  p.etapas[p.etapaAtual].estado = 'active';
+  p.etapas[p.etapaAtual].fim    = undefined;
+  p.etapas[p.etapaAtual].detalhe = 'Em andamento';
+  p.status = p.etapaAtual === 0 ? 'aguardando' : 'ativo';
+  salvarProjetos();
+  render();
+  abrirDetalhe(p.id);
+  toast(`Projeto revertido para "${ETAPAS[p.etapaAtual]}"`, 'warning');
+}
+
+// ═══════════════════════════════════════
+//  FORMULÁRIO NOVO / EDITAR
+// ═══════════════════════════════════════
+function popularSelectClientes(valorSelecionado='') {
+  const sel = document.getElementById('f-cliente');
+  sel.innerHTML = '<option value="">— Selecione um cliente —</option>' +
+    clientes.map(c => `<option value="${c.nome}" ${c.nome===valorSelecionado?'selected':''}>${c.nome}</option>`).join('');
+}
+
+function calcularPrazo() {
+  const inicio = document.getElementById('f-inicio').value;
+  const prazo  = parseInt(document.getElementById('f-prazo').value);
+  const info   = document.getElementById('f-prazo-info');
+  if (!inicio || !prazo) { info.textContent = '—'; return; }
+  let data = new Date(inicio + 'T12:00:00');
+  let dias = 0;
+  while (dias < prazo) { data.setDate(data.getDate()+1); if (data.getDay()!==0 && data.getDay()!==6) dias++; }
+  info.innerHTML = `<strong>${data.toLocaleDateString('pt-BR')}</strong>`;
+}
+
+function abrirFormNovo() {
+  modoEdicao = false;
+  projetoAtivoId = null;
+  document.getElementById('f-titulo-sub').textContent = 'Novo Projeto';
+  document.getElementById('f-titulo').textContent = 'Preencha os dados abaixo';
+  document.getElementById('f-nome').value = '';
+  document.getElementById('f-tipo').value = 'PPCI — Proteção Contra Incêndio';
+  popularSelectClientes();
+  document.getElementById('f-resp').value = 'Pedro';
+  document.getElementById('f-valor').value = '';
+  document.getElementById('f-inicio').value = new Date().toISOString().split('T')[0];
+  document.getElementById('f-prazo').value = '';
+  document.getElementById('f-prazo-info').textContent = 'Preencha a data de início e o prazo para ver a data estimada de entrega.';
+  document.getElementById('f-obs').value = '';
+  document.getElementById('btn-excluir').style.display = 'none';
+  // Listeners para calcular prazo
+  document.getElementById('f-inicio').oninput = calcularPrazo;
+  document.getElementById('f-prazo').oninput  = calcularPrazo;
+  parcelas_form = [{ label:'Parcela 1/2 — Assinatura', venc:'', valor:'', status:'pendente' }];
+  renderParcelasForm();
+  abrir('modal-form');
+}
+
+function abrirFormEditar() {
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  if (!p) return;
+  modoEdicao = true;
+  fechar('modal-detalhe');
+  document.getElementById('f-titulo-sub').textContent = `Editando ${p.num}`;
+  document.getElementById('f-titulo').textContent = p.nome;
+  document.getElementById('f-nome').value = p.nome;
+  document.getElementById('f-tipo').value = p.tipo;
+  popularSelectClientes(p.cliente);
+  document.getElementById('f-resp').value = p.resp;
+  document.getElementById('f-valor').value = p.valor;
+  const partes = p.inicio.split('/');
+  document.getElementById('f-inicio').value = partes.length===3 ? `${partes[2]}-${partes[1]}-${partes[0]}` : '';
+  document.getElementById('f-prazo').value = p.prazo || '';
+  document.getElementById('f-prazo-info').textContent = 'Preencha a data de início e o prazo para ver a data estimada de entrega.';
+  document.getElementById('f-inicio').oninput = calcularPrazo;
+  document.getElementById('f-prazo').oninput  = calcularPrazo;
+  document.getElementById('f-obs').value = '';
+  document.getElementById('btn-excluir').style.display = 'inline-flex';
+  parcelas_form = p.parcelas.map(pc => ({ ...pc }));
+  renderParcelasForm();
+  abrir('modal-form');
+}
+
+function renderParcelasForm() {
+  const header = `
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 36px;gap:10px;margin-bottom:4px;padding:0 2px;">
+      <span class="form-label">Descrição</span>
+      <span class="form-label">Valor (R$) *</span>
+      <span class="form-label">Status</span>
+      <span></span>
+    </div>`;
+  document.getElementById('f-parcelas-container').innerHTML = header + parcelas_form.map((pc,i) => `
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 36px;gap:10px;margin-bottom:8px;align-items:center;">
+      <input class="form-input" value="${pc.label}" onchange="parcelas_form[${i}].label=this.value" placeholder="Ex: Parcela 1/2"/>
+      <input class="form-input" type="number" value="${pc.valor||''}" onchange="parcelas_form[${i}].valor=parseFloat(this.value)||0" placeholder="0" required style="border-color:${!pc.valor?'var(--mustard)':''}"/>
+      <select class="form-select" onchange="parcelas_form[${i}].status=this.value">
+        <option value="pendente" ${pc.status==='pendente'?'selected':''}>Pendente</option>
+        <option value="pago" ${pc.status==='pago'?'selected':''}>Pago</option>
+        <option value="vencido" ${pc.status==='vencido'?'selected':''}>Vencido</option>
+      </select>
+      <button class="btn btn-danger btn-sm" style="padding:0;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="removerParcela(${i})">✕</button>
+    </div>`).join('');
+}
+
+function adicionarParcela() {
+  parcelas_form.push({ label:`Parcela ${parcelas_form.length+1}`, venc:'', valor:'', status:'pendente' });
+  renderParcelasForm();
+}
+
+function removerParcela(i) {
+  parcelas_form.splice(i,1);
+  renderParcelasForm();
+}
+
+function salvarProjeto() {
+  const nome = document.getElementById('f-nome').value.trim();
+  const cliente = document.getElementById('f-cliente').value.trim();
+  const valor = parseFloat(document.getElementById('f-valor').value) || 0;
+  if (!nome || !cliente || !valor) { toast('Preencha nome, cliente e valor total.','warning'); return; }
+  const parcelaSemValor = parcelas_form.findIndex(pc => !pc.valor || pc.valor <= 0);
+  if (parcelaSemValor >= 0) { toast(`Informe o valor da parcela ${parcelaSemValor+1}.`,'warning'); return; }
+
+  const tipo = document.getElementById('f-tipo').value;
+  const resp = document.getElementById('f-resp').value;
+  const inicioVal = document.getElementById('f-inicio').value;
+  const inicio = inicioVal ? inicioVal.split('-').reverse().join('/') : '--/--/----';
+  const prazo = parseInt(document.getElementById('f-prazo').value) || 0;
+  const obsTexto = document.getElementById('f-obs').value.trim();
+  const hoje = new Date().toLocaleDateString('pt-BR');
+
+  if (modoEdicao) {
+    const p = projetos.find(x => x.id === projetoAtivoId);
+    if (!p) return;
+    p.nome = nome; p.tipo = tipo; p.cliente = cliente;
+    p.resp = resp; p.valor = valor; p.inicio = inicio; p.prazo = prazo;
+    p.parcelas = parcelas_form.map(pc => ({ ...pc }));
+    if (obsTexto) p.obs.push({ etapa: ETAPAS[p.etapaAtual], data: hoje, texto: obsTexto });
+    toast(`Projeto "${nome}" atualizado ✓`,'success');
+  } else {
+    const novoNum = `#${String(Math.max(...projetos.map(p=>parseInt(p.num.replace('#',''))||0))+1).padStart(3,'0')}`;
+    const novoId = `p${Date.now()}`;
+    projetos.unshift({
+      id: novoId, num: novoNum, nome, tipo, cliente, resp, valor, inicio, prazo,
+      etapaAtual: 0, status: 'aguardando',
+      etapas: ETAPAS.map((e,i) => ({ nome:e, estado: i===0?'active':'pending', detalhe: i===0?'Em andamento':'' })),
+      obs: obsTexto ? [{ etapa:'Aguardando documentos', data:hoje, texto:obsTexto }] : [],
+      parcelas: parcelas_form.map(pc => ({ ...pc })),
+      anexos: []
+    });
+    toast(`Projeto "${nome}" criado ✓`,'success');
+  }
+  salvarProjetos();
+  render();
+  fechar('modal-form');
+}
+
+// ═══════════════════════════════════════
+//  NOVA OBSERVAÇÃO
+// ═══════════════════════════════════════
+function abrirNovaObs() {
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  if (!p) return;
+  const sel = document.getElementById('obs-etapa');
+  sel.innerHTML = ETAPAS.map((e,i) => `<option value="${e}" ${i===p.etapaAtual?'selected':''}>${e}</option>`).join('');
+  document.getElementById('obs-texto').value = '';
+  abrir('modal-obs');
+}
+
+function salvarObs() {
+  const texto = document.getElementById('obs-texto').value.trim();
+  if (!texto) { toast('Escreva a observação antes de salvar.','warning'); return; }
+  const etapa = document.getElementById('obs-etapa').value;
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  if (!p) return;
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  p.obs.push({ etapa, data: hoje, texto });
+  salvarProjetos();
+  fechar('modal-obs');
+  abrirDetalhe(projetoAtivoId);
+  toast('Observação registrada ✓','success');
+}
+
+// ═══════════════════════════════════════
+//  CLIENTES
+// ═══════════════════════════════════════
+function abrirCadastroCliente() {
+  document.getElementById('cli-nome').value = '';
+  document.getElementById('cli-tipo').value = 'Pessoa Jurídica';
+  document.getElementById('cli-doc').value = '';
+  document.getElementById('cli-email').value = '';
+  document.getElementById('cli-tel').value = '';
+  document.getElementById('cli-resp').value = '';
+  abrir('modal-cliente');
+}
+
+function salvarCliente() {
+  const nome  = document.getElementById('cli-nome').value.trim();
+  const email = document.getElementById('cli-email').value.trim();
+  if (!nome)  { toast('Informe o nome do cliente.','warning'); return; }
+  if (!email) { toast('Informe o e-mail do cliente.','warning'); return; }
+  const novo = {
+    id: `c${Date.now()}`,
+    nome,
+    tipo:    document.getElementById('cli-tipo').value,
+    doc:     document.getElementById('cli-doc').value.trim(),
+    email,
+    tel:     document.getElementById('cli-tel').value.trim(),
+    contato: document.getElementById('cli-resp').value.trim(),
+    resp:    document.getElementById('cli-resp').value.trim(),
+  };
+  clientes.push(novo);
+  salvarClientesP();
+  popularSelectClientes(nome);
+  fechar('modal-cliente');
+  toast(`Cliente "${nome}" cadastrado ✓`,'success');
+}
+
+// ═══════════════════════════════════════
+//  EXCLUIR
+// ═══════════════════════════════════════
+function confirmarExclusao() {
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  if (!p) return;
+  document.getElementById('c-titulo').textContent = '🗑 Excluir projeto';
+  document.getElementById('c-texto').textContent = `Tem certeza que deseja excluir o projeto "${p.nome}"? Esta ação não pode ser desfeita.`;
+  document.getElementById('c-btn-ok').onclick = () => { excluirProjeto(); fechar('modal-confirm'); fechar('modal-form'); };
+  document.getElementById('c-btn-ok').className = 'btn btn-danger btn-sm';
+  document.getElementById('c-btn-ok').textContent = 'Excluir';
+  abrir('modal-confirm');
+}
+
+function excluirProjeto() {
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  projetos = projetos.filter(x => x.id !== projetoAtivoId);
+  salvarProjetos();
+  render();
+  toast(`Projeto "${p?.nome}" excluído.`);
+}
+
+// ═══════════════════════════════════════
+//  ANEXOS
+// ═══════════════════════════════════════
+function abrirAnexos() {
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  if (!p) return;
+  document.getElementById('anexos-lista').innerHTML = p.anexos.length
+    ? p.anexos.map(a => `
+        <div style="display:flex;align-items:center;gap:10px;background:var(--cream);border-radius:8px;padding:10px 14px;">
+          <span>📄</span>
+          <span style="font-size:13px;flex:1;">${a}</span>
+          <button class="btn btn-outline btn-sm" onclick="toast('Download: ${a}')">⬇</button>
+        </div>`).join('')
+    : `<div style="color:var(--text-light);font-size:13px;">Nenhum anexo ainda.</div>`;
+  abrir('modal-anexos');
+}
+
+function simularUpload() {
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  if (!p) return;
+  const nomes = ['Planta_PPCI.pdf','Memorial_descritivo.docx','ART_CREA.pdf','Laudo_tecnico.pdf'];
+  const nome = nomes[Math.floor(Math.random()*nomes.length)];
+  p.anexos.push(nome);
+  abrirAnexos();
+  toast(`Arquivo "${nome}" adicionado ✓`,'success');
+}
+
+// ═══════════════════════════════════════
+//  CONTATAR CLIENTE
+// ═══════════════════════════════════════
+function formatarTel(tel) {
+  const n = tel.replace(/\D/g,'');
+  if (n.length === 11) return `(${n.slice(0,2)}) ${n.slice(2,7)}-${n.slice(7)}`;
+  if (n.length === 10) return `(${n.slice(0,2)}) ${n.slice(2,6)}-${n.slice(6)}`;
+  return tel;
+}
+
+function contatarCliente() {
+  const p = projetos.find(x => x.id === projetoAtivoId);
+  if (!p) return;
+  const cli = clientes.find(c => c.nome === p.cliente);
+
+  document.getElementById('ct-nome').textContent = p.cliente;
+  document.getElementById('ct-resp').textContent = cli?.resp ? `Contato: ${cli.resp}` : '';
+
+  // E-mail
+  const email = cli?.email || '';
+  document.getElementById('ct-email-txt').textContent = email || 'E-mail não cadastrado';
+  const emailBtn = document.getElementById('ct-email-btn');
+  if (email) {
+    emailBtn.onclick = () => window.open(`mailto:${email}?subject=Projeto ${p.num} — ${p.nome}`, '_blank');
+    emailBtn.style.opacity = '1'; emailBtn.style.cursor = 'pointer';
+  } else {
+    emailBtn.onclick = null;
+    emailBtn.style.opacity = '.5'; emailBtn.style.cursor = 'not-allowed';
+  }
+
+  // WhatsApp
+  const tel = (cli?.tel || '').replace(/\D/g,'');
+  document.getElementById('ct-tel-txt').textContent = cli?.tel ? formatarTel(cli.tel) : 'Telefone não cadastrado';
+  const zapBtn = document.getElementById('ct-zap-btn');
+  if (tel) {
+    const num = tel.startsWith('55') ? tel : `55${tel}`;
+    zapBtn.onclick = () => window.open(`https://wa.me/${num}?text=Olá! Referente ao projeto ${p.num} — ${p.nome}.`, '_blank');
+    zapBtn.style.opacity = '1'; zapBtn.style.cursor = 'pointer';
+  } else {
+    zapBtn.onclick = null;
+    zapBtn.style.opacity = '.5'; zapBtn.style.cursor = 'not-allowed';
+  }
+
+  abrir('modal-contato');
+}
+
+// ═══════════════════════════════════════
+//  EXPORTAR
+// ═══════════════════════════════════════
+function exportarCSV() {
+  const linhas = [['Nº','Nome','Cliente','Responsável','Tipo','Valor','Status','Etapa Atual','Início']];
+  projetos.forEach(p => linhas.push([p.num, p.nome, p.cliente, p.resp, p.tipo, `R$ ${p.valor}`, p.status, ETAPAS[p.etapaAtual], p.inicio]));
+  const csv = linhas.map(l => l.map(c => `"${c}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='projetos_terra.csv'; a.click();
+  toast('Exportação concluída ✓','success');
+}
+
+// ═══════════════════════════════════════
+//  FILTRO / BUSCA
+// ═══════════════════════════════════════
+function filtrar(el, status) {
+  document.querySelectorAll('.filtro-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  filtroAtual = status;
+  renderCards();
+}
+
+function buscar(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('.projeto-card').forEach(card => {
+    card.style.display = card.innerText.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════
+//  UTILITÁRIOS
+// ═══════════════════════════════════════
+function abrir(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function fechar(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+function fecharModalClick(e, id) { if (e.target === document.getElementById(id)) fechar(id); }
+
+function toast(msg, tipo='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${tipo} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay-sb').classList.toggle('open');
+}
+
+// INIT
+render();
+</script>
+</body>
+</html>

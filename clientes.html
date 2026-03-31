@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terra Engenharia — Clientes</title>
+  <style>
+    :root {
+      --teal:      #225D65;
+      --teal-dark: #1a464d;
+      --rust:      #AE5238;
+      --mustard:   #D39932;
+      --olive:     #5C633E;
+      --cream:     #E3D8C6;
+      --cream-dark:#d4c9b4;
+      --white:     #ffffff;
+      --text-dark: #2c2c2c;
+      --text-mid:  #555;
+      --text-light:#888;
+      --sidebar-w: 240px;
+      --radius:    12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--cream); color: var(--text-dark); display: flex; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--teal); display: flex; flex-direction: column; position: fixed; top:0; left:0; height:100vh; z-index:100; }
+    .sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,.12); }
+    .sidebar-logo .brand { font-size:18px; font-weight:700; color:#fff; }
+    .sidebar-logo .sub { font-size:11px; color:rgba(255,255,255,.5); margin-top:3px; letter-spacing:1px; text-transform:uppercase; }
+    .nav { padding: 16px 0; flex:1; }
+    .nav-section { font-size:10px; color:rgba(255,255,255,.4); letter-spacing:1.5px; text-transform:uppercase; padding:16px 24px 6px; }
+    .nav-item { display:flex; align-items:center; gap:12px; padding:11px 24px; color:rgba(255,255,255,.75); font-size:14px; cursor:pointer; border-left:3px solid transparent; transition:all .2s; text-decoration:none; }
+    .nav-item:hover { background:rgba(255,255,255,.08); color:#fff; }
+    .nav-item.active { background:rgba(255,255,255,.13); color:#fff; border-left-color:var(--mustard); font-weight:600; }
+    .nav-item .icon { font-size:18px; width:22px; text-align:center; }
+    .nav-badge { margin-left:auto; background:var(--rust); color:#fff; font-size:10px; font-weight:700; border-radius:20px; padding:2px 7px; }
+    .sidebar-user { padding:16px 24px; border-top:1px solid rgba(255,255,255,.12); display:flex; align-items:center; gap:12px; }
+    .avatar { width:36px; height:36px; border-radius:50%; background:var(--mustard); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; }
+    .sidebar-user .info .name { font-size:13px; color:#fff; font-weight:600; }
+    .sidebar-user .info .role { font-size:11px; color:rgba(255,255,255,.5); }
+
+    /* MAIN */
+    .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; }
+    .topbar { background:var(--white); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--cream-dark); position:sticky; top:0; z-index:50; }
+    .topbar-title { font-size:20px; font-weight:700; color:var(--teal); }
+    .topbar-sub { font-size:13px; color:var(--text-light); margin-top:2px; }
+    .content { padding:28px 32px; flex:1; }
+
+    /* BOTÕES */
+    .btn { padding:8px 18px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all .2s; display:inline-flex; align-items:center; gap:6px; }
+    .btn-primary { background:var(--teal); color:#fff; }
+    .btn-primary:hover { background:var(--teal-dark); }
+    .btn-outline { background:transparent; color:var(--teal); border:1.5px solid var(--teal); }
+    .btn-outline:hover { background:var(--teal); color:#fff; }
+    .btn-danger { background:rgba(174,82,56,.1); color:var(--rust); border:1.5px solid rgba(174,82,56,.3); }
+    .btn-danger:hover { background:var(--rust); color:#fff; }
+    .btn-sm { padding:6px 14px; font-size:12px; }
+
+    /* KPI GRID */
+    .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+    .kpi-card { background:var(--white); border-radius:var(--radius); padding:18px 22px; border-left:4px solid var(--teal); box-shadow:0 1px 4px rgba(0,0,0,.06); }
+    .kpi-card.mustard { border-left-color:var(--mustard); }
+    .kpi-card.olive   { border-left-color:var(--olive); }
+    .kpi-card.rust    { border-left-color:var(--rust); }
+    .kpi-label { font-size:11px; color:var(--text-light); text-transform:uppercase; letter-spacing:.5px; font-weight:600; margin-bottom:6px; }
+    .kpi-value { font-size:28px; font-weight:800; color:var(--teal); line-height:1; }
+    .kpi-card.mustard .kpi-value { color:var(--mustard); }
+    .kpi-card.olive   .kpi-value { color:var(--olive); }
+    .kpi-card.rust    .kpi-value { color:var(--rust); }
+    .kpi-sub { font-size:11px; color:var(--text-light); margin-top:5px; }
+
+    /* BARRA DE FILTROS */
+    .filtros-bar { background:var(--white); border-radius:var(--radius); padding:14px 20px; margin-bottom:20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+    .search-input { flex:1; min-width:200px; padding:9px 14px; border:1.5px solid var(--cream-dark); border-radius:8px; font-size:13px; background:var(--cream); color:var(--text-dark); outline:none; transition:.2s; }
+    .search-input:focus { border-color:var(--teal); background:#fff; }
+    .pill { padding:6px 16px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; border:1.5px solid var(--cream-dark); background:var(--white); color:var(--text-mid); transition:all .2s; }
+    .pill:hover { border-color:var(--teal); color:var(--teal); }
+    .pill.active { background:var(--teal); border-color:var(--teal); color:#fff; }
+
+    /* GRID DE CLIENTES */
+    .clientes-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:16px; }
+    .cliente-card { background:var(--white); border-radius:var(--radius); padding:20px 22px; box-shadow:0 1px 4px rgba(0,0,0,.06); cursor:pointer; transition:all .2s; border-left:4px solid var(--teal); }
+    .cliente-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.12); transform:translateY(-1px); }
+    .cliente-card.pj   { border-left-color:var(--teal); }
+    .cliente-card.pf   { border-left-color:var(--mustard); }
+    .cliente-card.pub  { border-left-color:var(--olive); }
+    .cli-header { display:flex; align-items:flex-start; gap:14px; margin-bottom:14px; }
+    .cli-avatar { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; color:#fff; flex-shrink:0; }
+    .cli-avatar.pj  { background:var(--teal); }
+    .cli-avatar.pf  { background:var(--mustard); }
+    .cli-avatar.pub { background:var(--olive); }
+    .cli-nome { font-size:15px; font-weight:700; color:var(--text-dark); line-height:1.3; }
+    .cli-tipo-badge { display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding:2px 8px; border-radius:10px; margin-top:4px; }
+    .cli-tipo-badge.pj  { background:rgba(34,93,101,.1); color:var(--teal); }
+    .cli-tipo-badge.pf  { background:rgba(211,153,50,.12); color:#8a6400; }
+    .cli-tipo-badge.pub { background:rgba(92,99,62,.12); color:var(--olive); }
+    .cli-infos { display:flex; flex-direction:column; gap:5px; margin-bottom:14px; }
+    .cli-info-row { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-mid); }
+    .cli-info-row .label { font-size:10px; color:var(--text-light); text-transform:uppercase; letter-spacing:.5px; min-width:36px; }
+    .cli-footer { display:flex; gap:8px; padding-top:12px; border-top:1px solid var(--cream); }
+    .cli-stat { flex:1; text-align:center; }
+    .cli-stat-num { font-size:18px; font-weight:800; color:var(--teal); }
+    .cli-stat-label { font-size:10px; color:var(--text-light); text-transform:uppercase; letter-spacing:.4px; }
+
+    .vazio { text-align:center; padding:60px 20px; color:var(--text-light); }
+    .vazio .icon { font-size:48px; margin-bottom:12px; }
+    .vazio p { font-size:14px; }
+
+    /* MODAL */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; z-index:200; opacity:0; pointer-events:none; transition:opacity .2s; padding:20px; }
+    .modal-overlay.open { opacity:1; pointer-events:all; }
+    .modal { background:var(--white); border-radius:16px; width:100%; max-width:600px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+    .modal-sm { max-width:460px; }
+    .modal-header { padding:24px 28px 0; display:flex; align-items:flex-start; justify-content:space-between; }
+    .modal-num { font-size:11px; color:var(--text-light); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px; }
+    .modal-nome { font-size:22px; font-weight:800; color:var(--teal); }
+    .modal-close { background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-light); padding:4px; border-radius:6px; transition:.2s; line-height:1; }
+    .modal-close:hover { background:var(--cream); color:var(--text-dark); }
+    .modal-body { padding:20px 28px 8px; }
+    .modal-actions { padding:16px 28px 24px; display:flex; gap:10px; align-items:center; border-top:1px solid var(--cream); margin-top:16px; }
+
+    /* INFO GRID NO MODAL */
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 20px; margin-bottom:20px; }
+    .info-item { }
+    .info-item.full { grid-column:1/-1; }
+    .info-label { font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--text-light); margin-bottom:3px; font-weight:600; }
+    .info-value { font-size:14px; color:var(--text-dark); font-weight:500; }
+
+    /* SEÇÃO DE VINCULOS */
+    .vinculos-section { margin-top:20px; padding-top:20px; border-top:1px solid var(--cream-dark); }
+    .vinculos-titulo { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-light); font-weight:700; margin-bottom:12px; }
+    .vinculo-item { display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--cream); border-radius:8px; margin-bottom:8px; cursor:pointer; transition:.2s; }
+    .vinculo-item:hover { background:var(--cream-dark); }
+    .vinculo-num { font-size:12px; font-weight:700; color:var(--teal); min-width:48px; }
+    .vinculo-desc { font-size:13px; color:var(--text-dark); flex:1; }
+    .vinculo-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; text-transform:uppercase; letter-spacing:.4px; }
+    .badge-elaboracao { background:rgba(211,153,50,.15); color:#8a6400; }
+    .badge-enviada    { background:rgba(34,93,101,.12); color:var(--teal); }
+    .badge-negociacao { background:rgba(211,153,50,.2); color:#8a6400; }
+    .badge-aprovada   { background:rgba(92,99,62,.15); color:var(--olive); }
+    .badge-recusada   { background:rgba(174,82,56,.12); color:var(--rust); }
+    .badge-ativo      { background:rgba(34,93,101,.12); color:var(--teal); }
+    .badge-aguardando { background:rgba(211,153,50,.15); color:#8a6400; }
+    .badge-atrasado   { background:rgba(174,82,56,.12); color:var(--rust); }
+    .badge-concluido  { background:rgba(92,99,62,.15); color:var(--olive); }
+
+    /* FORM */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .form-group { display:flex; flex-direction:column; gap:5px; }
+    .form-group.full { grid-column:1/-1; }
+    .form-label { font-size:12px; font-weight:600; color:var(--text-mid); text-transform:uppercase; letter-spacing:.5px; }
+    .form-input, .form-select, .form-textarea { padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:8px; font-size:14px; color:var(--text-dark); background:var(--white); outline:none; transition:.2s; font-family:inherit; width:100%; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(34,93,101,.08); }
+    .form-textarea { min-height:80px; resize:vertical; }
+
+    /* TOAST */
+    #toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--teal-dark); color:#fff; padding:10px 22px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:all .3s; z-index:999; white-space:nowrap; }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    #toast.success { background:var(--olive); }
+    #toast.error   { background:var(--rust); }
+    #toast.warning { background:var(--mustard); color:#5a3e00; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">🏗 Terra Engenharia</div>
+    <div class="sub">Sistema de Gestão</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item" onclick="location.href='dashboard.html'"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-section">Operação</div>
+    <div class="nav-item" onclick="location.href='propostas.html'"><span class="icon">📋</span> Propostas</div>
+    <div class="nav-item" onclick="location.href='projetos.html'"><span class="icon">📐</span> Projetos</div>
+    <div class="nav-item" onclick="location.href='financeiro.html'"><span class="icon">💰</span> Financeiro</div>
+    <div class="nav-section">Cadastros</div>
+    <div class="nav-item active"><span class="icon">👥</span> Clientes</div>
+    <div class="nav-item"><span class="icon">⚙️</span> Configurações</div>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar">P</div>
+    <div class="info">
+      <div class="name">Pedro</div>
+      <div class="role">Sócio</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Clientes</div>
+      <div class="topbar-sub" id="topbar-sub">Carregando...</div>
+    </div>
+    <button class="btn btn-primary" onclick="abrirFormNovo()">+ Novo cliente</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total de Clientes</div>
+        <div class="kpi-value" id="kpi-total">0</div>
+        <div class="kpi-sub" id="kpi-total-sub">—</div>
+      </div>
+      <div class="kpi-card mustard">
+        <div class="kpi-label">Pessoa Jurídica</div>
+        <div class="kpi-value" id="kpi-pj">0</div>
+        <div class="kpi-sub">empresas</div>
+      </div>
+      <div class="kpi-card olive">
+        <div class="kpi-label">Pessoa Física</div>
+        <div class="kpi-value" id="kpi-pf">0</div>
+        <div class="kpi-sub">pessoas</div>
+      </div>
+      <div class="kpi-card rust">
+        <div class="kpi-label">Órgão Público</div>
+        <div class="kpi-value" id="kpi-pub">0</div>
+        <div class="kpi-sub">órgãos</div>
+      </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filtros-bar">
+      <input class="search-input" id="busca-input" type="text" placeholder="🔍  Buscar por nome, e-mail, CNPJ..." oninput="render()"/>
+      <span class="pill active" id="pill-todos"  onclick="filtrar('todos',this)">Todos</span>
+      <span class="pill"        id="pill-pj"     onclick="filtrar('Pessoa Jurídica',this)">Pessoa Jurídica</span>
+      <span class="pill"        id="pill-pf"     onclick="filtrar('Pessoa Física',this)">Pessoa Física</span>
+      <span class="pill"        id="pill-pub"    onclick="filtrar('Órgão Público',this)">Órgão Público</span>
+    </div>
+
+    <!-- GRID -->
+    <div class="clientes-grid" id="clientes-grid"></div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ═══ MODAL DETALHE ═══ -->
+<div class="modal-overlay" id="modal-detalhe" onclick="fecharModalClick(event,'modal-detalhe')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-num" id="d-tipo-badge"></div>
+        <div class="modal-nome" id="d-nome"></div>
+      </div>
+      <button class="modal-close" onclick="fechar('modal-detalhe')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">CNPJ / CPF</div>
+          <div class="info-value" id="d-doc">—</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Tipo</div>
+          <div class="info-value" id="d-tipo">—</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">E-mail</div>
+          <div class="info-value" id="d-email">—</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Telefone</div>
+          <div class="info-value" id="d-tel">—</div>
+        </div>
+        <div class="info-item full">
+          <div class="info-label">Responsável pelo contato</div>
+          <div class="info-value" id="d-resp">—</div>
+        </div>
+        <div class="info-item full" id="d-obs-grupo" style="display:none;">
+          <div class="info-label">Observações</div>
+          <div class="info-value" id="d-obs" style="color:var(--text-mid);font-size:13px;line-height:1.5;"></div>
+        </div>
+      </div>
+
+      <!-- Propostas vinculadas -->
+      <div class="vinculos-section" id="sec-propostas">
+        <div class="vinculos-titulo">📋 Propostas</div>
+        <div id="d-propostas"></div>
+      </div>
+
+      <!-- Projetos vinculados -->
+      <div class="vinculos-section" id="sec-projetos">
+        <div class="vinculos-titulo">📐 Projetos</div>
+        <div id="d-projetos"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-detalhe')">Fechar</button>
+      <button class="btn btn-danger btn-sm" id="btn-excluir-detalhe" onclick="confirmarExclusao()" style="display:none;">🗑 Excluir</button>
+      <button class="btn btn-primary btn-sm" onclick="abrirFormEditar()" style="margin-left:auto;">✏️ Editar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL FORMULÁRIO ═══ -->
+<div class="modal-overlay" id="modal-form" onclick="fecharModalClick(event,'modal-form')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-num">Cadastro de cliente</div>
+        <div class="modal-nome" id="form-titulo">Novo cliente</div>
+      </div>
+      <button class="modal-close" onclick="fechar('modal-form')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label">Nome / Razão Social *</label>
+          <input class="form-input" id="f-nome" type="text" placeholder="Ex: Construtora ABC Ltda."/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" id="f-tipo">
+            <option value="Pessoa Jurídica">Pessoa Jurídica</option>
+            <option value="Pessoa Física">Pessoa Física</option>
+            <option value="Órgão Público">Órgão Público</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">CNPJ / CPF</label>
+          <input class="form-input" id="f-doc" type="text" placeholder="00.000.000/0001-00" maxlength="18"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail *</label>
+          <input class="form-input" id="f-email" type="email" placeholder="contato@empresa.com.br"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone</label>
+          <input class="form-input" id="f-tel" type="text" placeholder="(77) 99999-0000"/>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Responsável pelo contato</label>
+          <input class="form-input" id="f-resp" type="text" placeholder="Ex: João Silva — Gerente de obras"/>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Observações internas</label>
+          <textarea class="form-textarea" id="f-obs" placeholder="Informações relevantes sobre o cliente, preferências, histórico de relacionamento..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-form')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="salvar()" style="margin-left:auto;">💾 Salvar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL CONFIRMAÇÃO ═══ -->
+<div class="modal-overlay" id="modal-confirm" onclick="fecharModalClick(event,'modal-confirm')">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-nome" id="c-titulo" style="font-size:18px;"></div>
+      <button class="modal-close" onclick="fechar('modal-confirm')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="c-texto" style="font-size:14px;color:var(--text-mid);line-height:1.6;"></p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="fechar('modal-confirm')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" id="c-btn-ok" style="margin-left:auto;">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<script src="storage.js"></script>
+<script>
+// ═══════════════════════════════════════
+//  DADOS — carrega do localStorage compartilhado
+// ═══════════════════════════════════════
+let clientes   = carregarDados(DB_KEYS.clientes,   []);
+const propostas = carregarDados(DB_KEYS.propostas,  []);
+const projetos  = carregarDados(DB_KEYS.projetos,   []);
+
+let clienteAtivoId = null;
+let filtroTipo     = 'todos';
+
+// ═══════════════════════════════════════
+//  UTILITÁRIOS
+// ═══════════════════════════════════════
+function abrir(id)  { document.getElementById(id).classList.add('open'); }
+function fechar(id) { document.getElementById(id).classList.remove('open'); }
+function fecharModalClick(e, id) { if (e.target.id === id) fechar(id); }
+
+function toast(msg, tipo='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + tipo;
+  clearTimeout(t._t); t._t = setTimeout(() => t.className = '', 3000);
+}
+
+// Garante que todo cliente tem um id
+function garantirIds() {
+  let mudou = false;
+  clientes.forEach(c => {
+    if (!c.id) { c.id = 'c' + Date.now() + Math.random().toString(36).slice(2,6); mudou = true; }
+    if (!c.tipo) { c.tipo = 'Pessoa Jurídica'; mudou = true; }
+  });
+  if (mudou) salvarDados(DB_KEYS.clientes, clientes);
+}
+
+function tipoClass(tipo) {
+  if (!tipo || tipo === 'Pessoa Jurídica') return 'pj';
+  if (tipo === 'Pessoa Física') return 'pf';
+  return 'pub';
+}
+
+function iniciais(nome) {
+  return nome ? nome.trim().split(' ').slice(0,2).map(p=>p[0]).join('').toUpperCase() : '?';
+}
+
+// Contagem de propostas e projetos de um cliente
+function contarVinculos(nomeCliente) {
+  const nProps = propostas.filter(p => p.cliente === nomeCliente).length;
+  const nProj  = projetos.filter(p  => p.cliente === nomeCliente).length;
+  return { nProps, nProj };
+}
+
+// ═══════════════════════════════════════
+//  RENDERIZAÇÃO PRINCIPAL
+// ═══════════════════════════════════════
+function render() {
+  renderKPIs();
+  renderGrid();
+  renderTopbar();
+}
+
+function renderTopbar() {
+  const total = clientes.length;
+  document.getElementById('topbar-sub').textContent = `${total} cliente${total!==1?'s':''} cadastrado${total!==1?'s':''}`;
+}
+
+function renderKPIs() {
+  const total = clientes.length;
+  const pj    = clientes.filter(c => !c.tipo || c.tipo === 'Pessoa Jurídica').length;
+  const pf    = clientes.filter(c => c.tipo === 'Pessoa Física').length;
+  const pub   = clientes.filter(c => c.tipo === 'Órgão Público').length;
+
+  document.getElementById('kpi-total').textContent    = total;
+  document.getElementById('kpi-total-sub').textContent = total > 0 ? `${contarTotalVinculos()} vínculo${contarTotalVinculos()!==1?'s':''} (propostas + projetos)` : 'Nenhum cadastro ainda';
+  document.getElementById('kpi-pj').textContent = pj;
+  document.getElementById('kpi-pf').textContent = pf;
+  document.getElementById('kpi-pub').textContent = pub;
+}
+
+function contarTotalVinculos() {
+  let n = 0;
+  clientes.forEach(c => { const v = contarVinculos(c.nome); n += v.nProps + v.nProj; });
+  return n;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('clientes-grid');
+  const busca = document.getElementById('busca-input').value.toLowerCase();
+
+  const filtrados = clientes.filter(c => {
+    if (filtroTipo !== 'todos' && c.tipo !== filtroTipo) return false;
+    if (busca) {
+      const texto = [c.nome, c.email, c.doc, c.tel, c.resp].filter(Boolean).join(' ').toLowerCase();
+      if (!texto.includes(busca)) return false;
+    }
+    return true;
+  });
+
+  if (!filtrados.length) {
+    grid.innerHTML = `<div class="vazio" style="grid-column:1/-1;">
+      <div class="icon">👥</div>
+      <p>${clientes.length === 0 ? 'Nenhum cliente cadastrado ainda. Clique em "+ Novo cliente" para começar.' : 'Nenhum cliente encontrado para esta busca.'}</p>
+    </div>`;
+    return;
+  }
+
+  // Ordena: com mais vínculos primeiro, depois por nome
+  filtrados.sort((a, b) => {
+    const va = contarVinculos(a.nome), vb = contarVinculos(b.nome);
+    const totalA = va.nProps + va.nProj, totalB = vb.nProps + vb.nProj;
+    if (totalB !== totalA) return totalB - totalA;
+    return a.nome.localeCompare(b.nome, 'pt-BR');
+  });
+
+  grid.innerHTML = filtrados.map(c => {
+    const cls   = tipoClass(c.tipo);
+    const ini   = iniciais(c.nome);
+    const { nProps, nProj } = contarVinculos(c.nome);
+    const tipo  = c.tipo || 'Pessoa Jurídica';
+
+    return `
+      <div class="cliente-card ${cls}" onclick="abrirDetalhe('${c.id}')">
+        <div class="cli-header">
+          <div class="cli-avatar ${cls}">${ini}</div>
+          <div style="flex:1;min-width:0;">
+            <div class="cli-nome">${c.nome}</div>
+            <span class="cli-tipo-badge ${cls}">${tipo}</span>
+          </div>
+        </div>
+        <div class="cli-infos">
+          ${c.email ? `<div class="cli-info-row"><span class="label">Email</span> ${c.email}</div>` : ''}
+          ${c.tel   ? `<div class="cli-info-row"><span class="label">Tel</span> ${c.tel}</div>` : ''}
+          ${c.doc   ? `<div class="cli-info-row"><span class="label">Doc</span> ${c.doc}</div>` : ''}
+          ${c.resp  ? `<div class="cli-info-row"><span class="label">Resp</span> ${c.resp}</div>` : ''}
+          ${!c.email && !c.tel && !c.doc && !c.resp ? `<div style="font-size:12px;color:var(--text-light);font-style:italic;">Sem informações de contato</div>` : ''}
+        </div>
+        <div class="cli-footer">
+          <div class="cli-stat">
+            <div class="cli-stat-num">${nProps}</div>
+            <div class="cli-stat-label">Proposta${nProps!==1?'s':''}</div>
+          </div>
+          <div style="width:1px;background:var(--cream-dark);"></div>
+          <div class="cli-stat">
+            <div class="cli-stat-num">${nProj}</div>
+            <div class="cli-stat-label">Projeto${nProj!==1?'s':''}</div>
+          </div>
+          <div style="width:1px;background:var(--cream-dark);"></div>
+          <div class="cli-stat">
+            <div class="cli-stat-num">${nProps + nProj}</div>
+            <div class="cli-stat-label">Total</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+//  DETALHE
+// ═══════════════════════════════════════
+function abrirDetalhe(id) {
+  clienteAtivoId = id;
+  const c = clientes.find(x => x.id === id);
+  if (!c) return;
+
+  const cls = tipoClass(c.tipo);
+  document.getElementById('d-nome').textContent = c.nome;
+  document.getElementById('d-tipo-badge').textContent = (c.tipo || 'Pessoa Jurídica').toUpperCase();
+  document.getElementById('d-tipo').textContent  = c.tipo || 'Pessoa Jurídica';
+  document.getElementById('d-doc').textContent   = c.doc  || '—';
+  document.getElementById('d-email').textContent = c.email || '—';
+  document.getElementById('d-tel').textContent   = c.tel   || '—';
+  document.getElementById('d-resp').textContent  = c.resp  || c.contato || '—';
+
+  // Observações
+  const obsGrupo = document.getElementById('d-obs-grupo');
+  if (c.obs) {
+    document.getElementById('d-obs').textContent = c.obs;
+    obsGrupo.style.display = '';
+  } else {
+    obsGrupo.style.display = 'none';
+  }
+
+  // Propostas vinculadas
+  const propsVinc = propostas.filter(p => p.cliente === c.nome);
+  const STATUS_LABEL = { elaboracao:'Em elaboração', enviada:'Enviada', negociacao:'Em negociação', aprovada:'Aprovada', recusada:'Recusada' };
+  const d_props = document.getElementById('d-propostas');
+  if (propsVinc.length) {
+    d_props.innerHTML = propsVinc.map(p => {
+      const val = p.versoes?.[p.versoes.length-1]?.valor || 0;
+      return `<div class="vinculo-item" onclick="location.href='propostas.html'">
+        <span class="vinculo-num">${p.num}</span>
+        <div class="vinculo-desc">
+          <div style="font-weight:600;font-size:13px;">${p.tipo}</div>
+          <div style="font-size:11px;color:var(--text-light);">R$ ${val.toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${p.dataCriacao}</div>
+        </div>
+        <span class="vinculo-badge badge-${p.status}">${STATUS_LABEL[p.status]||p.status}</span>
+      </div>`;
+    }).join('');
+  } else {
+    d_props.innerHTML = `<div style="font-size:13px;color:var(--text-light);padding:8px 0;">Nenhuma proposta vinculada.</div>`;
+  }
+
+  // Projetos vinculados
+  const projVinc = projetos.filter(p => p.cliente === c.nome);
+  const ETAPAS   = ['Aguardando documentos','Visita técnica','Em elaboração','Revisão interna','Entregue ao cliente','Protocolo CB','Em análise CB','Aprovado CB','Concluído'];
+  const d_proj   = document.getElementById('d-projetos');
+  if (projVinc.length) {
+    d_proj.innerHTML = projVinc.map(p => {
+      const etapa = ETAPAS[p.etapaAtual] || 'Concluído';
+      return `<div class="vinculo-item" onclick="location.href='projetos.html'">
+        <span class="vinculo-num">${p.num}</span>
+        <div class="vinculo-desc">
+          <div style="font-weight:600;font-size:13px;">${p.nome}</div>
+          <div style="font-size:11px;color:var(--text-light);">${etapa} · R$ ${(p.valor||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        </div>
+        <span class="vinculo-badge badge-${p.status}">${p.status}</span>
+      </div>`;
+    }).join('');
+  } else {
+    d_proj.innerHTML = `<div style="font-size:13px;color:var(--text-light);padding:8px 0;">Nenhum projeto vinculado.</div>`;
+  }
+
+  // Esconde botão excluir se tem vínculos ativos
+  const temVinculos = propsVinc.length > 0 || projVinc.length > 0;
+  document.getElementById('btn-excluir-detalhe').style.display = temVinculos ? 'none' : 'inline-flex';
+
+  abrir('modal-detalhe');
+}
+
+// ═══════════════════════════════════════
+//  FORMULÁRIO
+// ═══════════════════════════════════════
+function abrirFormNovo() {
+  clienteAtivoId = null;
+  document.getElementById('form-titulo').textContent = 'Novo cliente';
+  document.getElementById('f-nome').value  = '';
+  document.getElementById('f-tipo').value  = 'Pessoa Jurídica';
+  document.getElementById('f-doc').value   = '';
+  document.getElementById('f-email').value = '';
+  document.getElementById('f-tel').value   = '';
+  document.getElementById('f-resp').value  = '';
+  document.getElementById('f-obs').value   = '';
+  abrir('modal-form');
+  setTimeout(() => document.getElementById('f-nome').focus(), 200);
+}
+
+function abrirFormEditar() {
+  const c = clientes.find(x => x.id === clienteAtivoId);
+  if (!c) return;
+  document.getElementById('form-titulo').textContent = 'Editar cliente';
+  document.getElementById('f-nome').value  = c.nome  || '';
+  document.getElementById('f-tipo').value  = c.tipo  || 'Pessoa Jurídica';
+  document.getElementById('f-doc').value   = c.doc   || '';
+  document.getElementById('f-email').value = c.email || '';
+  document.getElementById('f-tel').value   = c.tel   || '';
+  document.getElementById('f-resp').value  = c.resp  || c.contato || '';
+  document.getElementById('f-obs').value   = c.obs   || '';
+  fechar('modal-detalhe');
+  abrir('modal-form');
+  setTimeout(() => document.getElementById('f-nome').focus(), 200);
+}
+
+function salvar() {
+  const nome  = document.getElementById('f-nome').value.trim();
+  const tipo  = document.getElementById('f-tipo').value;
+  const doc   = document.getElementById('f-doc').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const tel   = document.getElementById('f-tel').value.trim();
+  const resp  = document.getElementById('f-resp').value.trim();
+  const obs   = document.getElementById('f-obs').value.trim();
+
+  if (!nome)  { toast('Informe o nome do cliente.','warning'); return; }
+  if (!email) { toast('Informe o e-mail.','warning'); return; }
+
+  // Verifica nome duplicado (exceto ao editar o próprio)
+  const nomeDup = clientes.find(c => c.nome.toLowerCase() === nome.toLowerCase() && c.id !== clienteAtivoId);
+  if (nomeDup) { toast('Já existe um cliente com esse nome.','warning'); return; }
+
+  if (clienteAtivoId) {
+    // Editar
+    const c = clientes.find(x => x.id === clienteAtivoId);
+    const nomeAntigo = c.nome;
+    Object.assign(c, { nome, tipo, doc, email, tel, resp, contato: resp, obs });
+    // Atualiza nome nas propostas e projetos se mudou
+    if (nomeAntigo !== nome) {
+      const props = carregarDados(DB_KEYS.propostas, []);
+      props.forEach(p => { if (p.cliente === nomeAntigo) p.cliente = nome; });
+      salvarDados(DB_KEYS.propostas, props);
+      const projs = carregarDados(DB_KEYS.projetos, []);
+      projs.forEach(p => { if (p.cliente === nomeAntigo) p.cliente = nome; });
+      salvarDados(DB_KEYS.projetos, projs);
+    }
+    toast('Cliente atualizado ✓', 'success');
+  } else {
+    // Novo
+    clientes.push({ id: 'c' + Date.now(), nome, tipo, doc, email, tel, resp, contato: resp, obs });
+    toast('Cliente cadastrado ✓', 'success');
+  }
+
+  salvarDados(DB_KEYS.clientes, clientes);
+  fechar('modal-form');
+  render();
+}
+
+// ═══════════════════════════════════════
+//  EXCLUSÃO
+// ═══════════════════════════════════════
+function confirmarExclusao() {
+  const c = clientes.find(x => x.id === clienteAtivoId);
+  if (!c) return;
+  document.getElementById('c-titulo').textContent = '🗑 Excluir cliente';
+  document.getElementById('c-texto').textContent  = `Tem certeza que deseja excluir "${c.nome}"? Esta ação não pode ser desfeita.`;
+  document.getElementById('c-btn-ok').onclick = () => {
+    clientes = clientes.filter(x => x.id !== clienteAtivoId);
+    salvarDados(DB_KEYS.clientes, clientes);
+    fechar('modal-confirm');
+    fechar('modal-detalhe');
+    render();
+    toast('Cliente excluído.', 'error');
+  };
+  fechar('modal-detalhe');
+  abrir('modal-confirm');
+}
+
+// ═══════════════════════════════════════
+//  FILTRO
+// ═══════════════════════════════════════
+function filtrar(tipo, el) {
+  filtroTipo = tipo;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+garantirIds();
+render();
+</script>
+</body>
+</html>
